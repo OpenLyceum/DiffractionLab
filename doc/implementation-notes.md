@@ -1,135 +1,100 @@
-# Implementation Notes - SceneryStack Template
+# Implementation Notes - Diffraction Lab
 
-Developer-facing notes on the **SceneryStackTemplate** scaffold. **Replace and expand this file when
-forking** to describe your sim's real architecture (see Stern Gerlach or Light Propagation for
-target quality). Until then, this documents what the template provides out of the box.
+Architecture and decisions, for developers. The physics is in [model.md](./model.md).
 
-## Architecture Overview
-
-SceneryStackTemplate is the fleet-canonical starting point for new SceneryStack sims (one or N screens).
-It demonstrates Model–View separation, color profiles, localization, reset behavior, accessibility
-reference wiring, and reusable common components — **without** domain physics.
+## Layout
 
 ```
-main.ts
-  └─ SimScreen             (Screen<SimModel, SimScreenView>)
-       ├─ SimModel          state + logic  (src/sim-screen/model/)  ← stub: add physics here
-       └─ SimScreenView     visuals        (src/sim-screen/view/)
-            ├─ SimScreenSummaryContent     (PDOM overview — reference a11y pattern)
-            └─ SimKeyboardHelpContent      (keyboard help dialog)
-
-src/common/
-  ├─ SimPanel.ts           pre-themed panel (uses SimColors)
-  ├─ SimButtonOptions.ts   flat button / combo-box option bundles
-  └─ TimeModel.ts          composable play/pause + elapsed time
-
-src/preferences/
-  ├─ SimPreferencesModel   sim-specific pref state
-  ├─ SimPreferencesNode    pref UI in Preferences → Simulation
-  └─ simQueryParameters    QueryStringMachine declarations
+src/
+  common/
+    model/        fraunhofer.ts, phasorChain.ts, airy.ts, hologram.ts  (pure functions, no axon)
+    view/         ChartFrameNode, chartUtils, controls, IntensityImageNode, lightColor, spectralColor
+    DiffractionLabScreenIcons.ts, DiffractionLabPanel.ts, *Options.ts, TimeModel.ts
+  gratings/            GratingsModel (+ TimeModel for the sweep), GratingsScreenView, PhasorDiagramNode
+  resolving-power/     ResolvingPowerModel (LINE_PAIRS presets), ResolvingPowerScreenView
+  circular-aperture/   CircularApertureModel (APERTURE_PRESETS), CircularApertureScreenView, formatDiameter
+  holography/          HolographyModel (incremental reconstruction), HolographyScreenView
+  preferences/         Show equations (default on, ?showEquations=false)
 ```
 
-Data flows Model → View through AXON `Property` objects (`.link()` / `.lazyLink()`). The view never
-integrates physics; the model never imports scenery.
+Each screen model holds Properties and derived quantities only; every equation is a pure function
+in `common/model/`, which the views and the screen summaries also call. The tests exercise those
+functions directly against the book's worked examples (`tests/fraunhofer.test.ts`,
+`tests/airy.test.ts`, `tests/hologram.test.ts`) and the models through their Properties
+(`tests/models.test.ts`).
 
-## Forking checklist
+## Decisions
 
-### Automated rename + scaffold (recommended)
+### One CPU image node for every intensity picture
 
-```sh
-npm run rename -- --id my-sim --name "My Simulation"
-npm run scaffold-screens -- --screens Intro,Lab   # or omit --screens for one screen
-npm run check
-```
+`IntensityImageNode` is a `CanvasNode` that takes a `Float32Array` of linear intensities, a colour
+and a gain (plus an optional display exponent). It writes an `ImageData` at sample resolution, puts it
+on an offscreen canvas and draws that scaled up with `drawImage`. It is the same pattern as
+InterferometryLab's `FringePatternNode`, generalized: the Gratings screen strip (800 × 1), the Airy
+image (161²), the film (1 × 480), the film close-up and the reconstruction map (187 × 133) all use it.
+Colours come from `spectralColor.ts` (copied from InterferometryLab: CIE colour-matching fits, so the
+colour of a wavelength is physical) via `lightColor.ts`, which normalizes each colour to its brightest
+channel. Pixel colours are therefore computed, not themed (see AGENTS.md carve-outs).
 
-Or from the workspace: `Baton/scripts/create-sim.sh --repo MySim --name "My Simulation"`.
+### Charts
 
-`scripts/rename-sim.ts` updates sim-level identifiers (package id, Colors, Preferences).
-`scripts/scaffold-screens.ts` emits fleet-named screen folders and wires main/strings/icons.
+`ChartFrameNode` and `chartUtils.ts` are copied from StellarWobble (originally RelativisticDynamics):
+a bamboo frame whose ranges can change after construction. Curves are `LinePlot`s rebuilt in a
+`Multilink` over the inputs. The Gratings chart samples 1600 points (enough for 40 slits across
+±2.5 envelope zeros). The Resolving Power chart samples 600 points over a window of max(3
+separations, 4 line widths), so the two peaks are always visible at any N. The Circular Aperture
+chart adds 60 extra samples around each source, so a sharp Airy peak inside a wide field is never
+missed.
 
-### Manual steps (after rename/scaffold or if skipping the scripts)
+### The Airy image never loses a source
 
-1. **`doc/model.md`** — educator physics (equations, ranges, simplifications).
-2. **`doc/implementation-notes.md`** — this file, rewritten for your architecture.
-3. **Screen model(s)** — real Properties, `step(dt)`, `reset()`; compose `TimeModel` if animated.
-4. **Screen view(s)** — play area + controls; wire `ResetAllButton` to `model.reset()`.
-5. **`*Colors.ts`** — sim palette (default + projector profiles).
-6. **Locale JSON** — title, strings, `a11y` keys; register locales in `init.ts`.
-7. **`public/icons/icon.svg`** → `npm run icons`; align theme color in `index.html` / vite config.
-8. **`tests/setup.ts`** — `init({ name: … })` must match `package.json` name after rename.
-9. **`AGENTS.md`** — sim-specific file map and pitfalls for AI assistants.
+When the sources are many Rayleigh angles apart, each Airy disk can be smaller than a pixel. Each
+pixel shows the PSF evaluated half a pixel diagonal closer to the source, i.e. the brightest point
+inside the pixel, so a source always lights at least one pixel. Once the disk spans several pixels
+the shift is negligible.
 
-## Common components (keep when forking)
+### Holography reconstruction is spread over frames
 
-### SimPanel
+The reconstruction is a Huygens sum over 480 film samples for each of 24 871 map points, about
+12 M complex terms, or ~0.4 s. `HolographyModel.step` computes 1600 points per frame while in
+Reconstruct mode and bumps `reconstructionVersionProperty`; the view re-transposes and repaints the
+map (normalizing to the brightest point so far), and a progress readout shows until it is done. Any
+change of setup (objects, angle, coherence, cut, zero order) restarts it. Recording is cheap and is a
+`DerivedProperty` of the setup. While reconstructing, the objects and recording controls are
+disabled: moving an object after the film is made would describe a hologram that does not exist.
 
-Every control panel should use `SimPanel` so projector-mode switching is automatic:
+The model maps (x along the film, depth) to the view by a reflection that swaps axes. `ModelViewTransform2`
+asserts that its matrix is axis-aligned, so the view uses a plain `Transform3`, which `DragListener`
+and `KeyboardDragListener` accept as `transform`.
 
-```typescript
-import { SimPanel } from "../../common/SimPanel.js";
-const panel = new SimPanel(content);
-const panelWide = new SimPanel(content, { xMargin: 20 });
-```
+### Slit width never exceeds the spacing
 
-### TimeModel
+The width control's slider has an `enabledRangeProperty` that follows d (in log₁₀ units, because the
+slider drives a log proxy). The model clamps a only when d shrinks, inside d's listener. An earlier
+version also clamped a inside its own listener; the keyboard fuzz caught that as an axon reentry.
 
-Compose into your screen model for animation (do not subclass `TimeModel`):
+### Logarithmic sliders
 
-```typescript
-export class MyModel implements TModel {
-  public readonly timer = new TimeModel();  // pass true to auto-play on startup
+`createNumberControl({ logarithmic: true })` drives a log₁₀ proxy Property kept in step both ways,
+rounding to the readout's significant figures, and to integers with `integer: true` (illuminated
+lines N is an integer Property). Adapted from StellarWobble.
 
-  public step(dt: number): void {
-    this.timer.step(dt);
-    // physics uses this.timer.timeProperty.value
-  }
-  public reset(): void { this.timer.reset(); /* restore initial state */ }
-}
-```
+### Radio buttons with a derived enabled state
 
-Wire `TimeControlNode` to `model.timer.isPlayingProperty` in the view.
+A `RectangularRadioButton` must own its `enabledProperty`, so `createRadioButtons` links a derived
+Property to `getButtonForValue(value).enabled` instead (orders that do not exist; object count while
+reconstructing).
 
-### SimButtonOptions
+## Testing
 
-Spread flat button options into every push/round button and `TimeControlNode` (see `AGENTS.md`).
-Use `SIM_COMBO_BOX_OPTIONS` + `LIGHT_SURFACE_TEXT_FILL` for light control surfaces on dark panels.
-
-## Accessibility (reference implementation)
-
-The template is the **canonical OpenLyceum a11y reference**:
-
-- PDOM `accessibleName` on interactive nodes (prefer live `StringProperty`s).
-- `SimScreenSummaryContent` with a live `currentDetailsContent` `DerivedProperty` over model state.
-- Explicit `pdomOrder` + `SimKeyboardHelpContent`.
-- Strings under `a11y` in locale JSON → `StringManager.getA11yStrings()`.
-
-Full checklist: [Baton/ACCESSIBILITY.md](https://github.com/OpenLyceum/Baton/blob/main/ACCESSIBILITY.md).
-
-## Testing (fleet layout — keep when forking)
-
-| Path | Purpose |
-|---|---|
-| `vitest.config.ts` | `happy-dom`; `setupFiles: ["./tests/setup.ts"]`; `execArgv: ["--expose-gc"]` |
-| `tests/setup.ts` | Canvas/AudioContext mocks + `init()` before SceneryStack imports |
-| `tests/TimeModel.test.ts` | **Replace** with real model/physics tests mirroring `src/` |
-| `tests/memory-leak.test.ts` | WeakRef + `forceGC` dispose regression |
-| `tests/fuzz/fuzz.spec.ts` | Optional Playwright smoke via `?fuzz` |
-
-Run `npm test`. Expand `memory-leak.test.ts` when adding runtime-created nodes or Property links.
-
-## Multi-screen simulations
-
-Default is single-screen. To add screens, see **`doc/multi-screen.md`**: per-screen folders mirroring
-`src/sim-screen/`, `StringManager` screen-name getters, optional shared root model, a shared
-`src/common/{SimName}ScreenIcons.ts` module (`create{Screen}Icon()` factories wired as
-`homeScreenIcon` / `navigationBarIcon`), and register all screens in `main.ts`.
+- `npm test`: physics against the book (missing orders and the nine fringes for d = 5a; the 5000
+  lines/cm angles, m_max and grazing order; 982 lines for sodium; J₁ zeros and table values; the
+  26.5 % dip; Hubble's and the eye's θ_R; hologram fringe contrast, coherence wash-out, focus at the
+  object and a wider focus from half the film), the screen models, and the memory-leak suite
+  (`TimeModel`, `HolographyModel`).
+- `npm run test:fuzz`: pointer and keyboard fuzz with assertions on.
 
 ## PWA
 
-After `npm run build`, the sim is installable offline via Workbox (`dist/manifest.webmanifest`).
-
-## Known template stubs (remove when forking)
-
-- `SimModel.step()` / `reset()` — empty placeholders until you add physics.
-- Placeholder play-area content in `SimScreenView` — replace with real UI.
-- `tests/TimeModel.test.ts` — sample only; add tests for your model under `tests/`.
+After `npm run build`, the sim is installable and works offline via Workbox
+(`dist/manifest.webmanifest`).

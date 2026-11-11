@@ -21,24 +21,38 @@ import "./brand.js";
 
 import { onReadyToLaunch, PreferencesModel, Sim } from "scenerystack/sim";
 import { Tandem } from "scenerystack/tandem";
+import { CircularApertureScreen } from "./circular-aperture/CircularApertureScreen.js";
+import DiffractionLabColors from "./DiffractionLabColors.js";
+import { GratingsScreen } from "./gratings/GratingsScreen.js";
+import { HolographyScreen } from "./holography/HolographyScreen.js";
 import { StringManager } from "./i18n/StringManager.js";
-import { SimPreferencesModel } from "./preferences/SimPreferencesModel.js";
-import { SimPreferencesNode } from "./preferences/SimPreferencesNode.js";
-import SimColors from "./SimColors.js";
-import { SimScreen } from "./sim-screen/SimScreen.js";
+import { diffractionLabPreferences } from "./preferences/DiffractionLabPreferencesModel.js";
+import { DiffractionLabPreferencesNode } from "./preferences/DiffractionLabPreferencesNode.js";
+import { ResolvingPowerScreen } from "./resolving-power/ResolvingPowerScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
-  // Simulation-specific preferences; initial values come from simQueryParameters.
-  const simPreferences = new SimPreferencesModel(Tandem.ROOT.createTandem("preferences"));
-
   const screens = [
-    new SimScreen({
-      // The screen name Property updates automatically when the locale changes
-      name: stringManager.getScreenNames().simStringProperty,
-      tandem: Tandem.ROOT.createTandem("simScreen"),
-      backgroundColorProperty: SimColors.backgroundColorProperty,
+    new GratingsScreen({
+      name: stringManager.getScreenNames().gratingsStringProperty,
+      tandem: Tandem.ROOT.createTandem("gratingsScreen"),
+      backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
+    }),
+    new ResolvingPowerScreen({
+      name: stringManager.getScreenNames().resolvingPowerStringProperty,
+      tandem: Tandem.ROOT.createTandem("resolvingPowerScreen"),
+      backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
+    }),
+    new CircularApertureScreen({
+      name: stringManager.getScreenNames().circularApertureStringProperty,
+      tandem: Tandem.ROOT.createTandem("circularApertureScreen"),
+      backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
+    }),
+    new HolographyScreen({
+      name: stringManager.getScreenNames().holographyStringProperty,
+      tandem: Tandem.ROOT.createTandem("holographyScreen"),
+      backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
     }),
   ];
 
@@ -53,7 +67,7 @@ onReadyToLaunch(() => {
       simulationOptions: {
         customPreferences: [
           {
-            createContent: (tandem: Tandem) => new SimPreferencesNode(simPreferences, tandem),
+            createContent: (tandem: Tandem) => new DiffractionLabPreferencesNode(diffractionLabPreferences, tandem),
           },
         ],
       },

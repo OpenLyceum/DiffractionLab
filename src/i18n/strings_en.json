@@ -1,21 +1,170 @@
 {
-  "title": "SceneryStack Template",
+  "title": "Diffraction Lab",
   "screens": {
-    "sim": "Sim"
+    "gratings": "Gratings",
+    "resolvingPower": "Resolving Power",
+    "circularAperture": "Circular Aperture",
+    "holography": "Holography"
+  },
+  "units": {
+    "valueUnitsPattern": "{{value}} {{units}}",
+    "micrometres": "µm",
+    "nanometres": "nm",
+    "metres": "m",
+    "millimetres": "mm",
+    "linesPerMillimetre": "lines/mm",
+    "degrees": "°",
+    "arcseconds": "″",
+    "wavelengths": "λ"
+  },
+  "common": {
+    "wavelength": "Wavelength λ",
+    "intensity": "Intensity"
+  },
+  "gratings": {
+    "slitCount": "Number of slits N",
+    "slitSpacing": "Slit spacing d",
+    "slitWidth": "Slit width a",
+    "showEnvelope": "Single-slit envelope",
+    "scaleByNSquared": "Peak height ∝ N²",
+    "sweep": "Sweep φ",
+    "intensityAxis": "I / I<sub>max</sub>",
+    "intensityN2Axis": "I / I<sub>1</sub>",
+    "sinThetaAxis": "sin θ",
+    "screen": "Screen",
+    "phasorTitle": "Phasors at the cursor",
+    "phasorCaption": "One arrow per slit, each turned by φ",
+    "phiReadout": "φ = {{value}} × 2π",
+    "intensityReadout": "I / I<sub>max</sub> = {{value}}",
+    "missingOrders": "Missing orders: ±{{orders}}",
+    "noMissingOrders": "Missing orders: none",
+    "fringesInEnvelope": "Bright fringes in the central envelope: {{count}}",
+    "equation": "I = I<sub>max</sub> sinc²(β/2) [sin(Nφ/2) / N sin(φ/2)]²"
+  },
+  "resolvingPower": {
+    "presets": "Spectral lines",
+    "sodium": "Na doublet",
+    "mercury": "Hg yellow",
+    "hydrogen": "H / D α",
+    "lineWavelength": "Wavelength λ",
+    "lineSeparation": "Separation Δλ",
+    "ruling": "Grating ruling",
+    "illuminatedLines": "Illuminated lines N",
+    "order": "Order m",
+    "justResolve": "Set N to just resolve",
+    "zoomAxis": "Δθ from the order-m lines (arcmin)",
+    "intensityAxis": "Intensity",
+    "spectrumTitle": "Both lines in every order, −90° to +90°",
+    "resolvingPowerReadout": "R = mN = {{value}}",
+    "requiredReadout": "Needed: λ/Δλ = {{value}}",
+    "angleReadout": "θ<sub>m</sub> = {{value}}°",
+    "dispersionReadout": "dθ/dλ = {{value}} arcmin/nm",
+    "resolved": "Resolved",
+    "justResolved": "Just resolved (Rayleigh)",
+    "unresolved": "Not resolved",
+    "orderUnavailable": "Order {{order}} does not exist for this grating",
+    "firstLine": "λ",
+    "secondLine": "λ + Δλ",
+    "sum": "Sum",
+    "rayleighMarker": "first zero of λ",
+    "equation": "R = λ/Δλ = mN"
+  },
+  "circularAperture": {
+    "presets": "Presets",
+    "eye": "Eye",
+    "hubble": "Hubble",
+    "ground": "Ground telescope",
+    "diameter": "Aperture diameter D",
+    "separation": "Source separation",
+    "seeing": "Atmospheric seeing (1″)",
+    "compareSlit": "Compare: slit of width D",
+    "boostRings": "Boost faint rings",
+    "imageTitle": "Image of two point sources",
+    "fieldOfView": "{{value}}″ across",
+    "angleAxis": "Angle (arcsec)",
+    "intensityAxis": "Intensity",
+    "rayleighReadout": "Rayleigh angle θ<sub>R</sub> = {{value}}″",
+    "ratioReadout": "Separation = {{value}} θ<sub>R</sub>",
+    "dipReadout": "Dip between the peaks: {{value}} %",
+    "noDip": "No dip: one blob",
+    "resolved": "Resolved",
+    "justResolved": "Just resolved (Rayleigh)",
+    "unresolved": "Not resolved",
+    "slitCurve": "slit, first zero at λ/D",
+    "equation": "θ<sub>R</sub> = 1.22 λ/D"
+  },
+  "holography": {
+    "record": "Record",
+    "reconstruct": "Reconstruct",
+    "objectCount": "Objects",
+    "referenceAngle": "Reference angle",
+    "coherenceLength": "Coherence length",
+    "cutFilm": "Cut film in half",
+    "blockZeroOrder": "Block zero order",
+    "film": "Film",
+    "referenceBeam": "Reference beam",
+    "objectLabel": "Object {{number}}",
+    "viewer": "Viewer",
+    "virtualImage": "Virtual images",
+    "closeUp": "Film close-up ({{value}} λ)",
+    "notToScale": "Lengths in wavelengths λ. A real hologram is about 10⁵ λ across.",
+    "fringeSpacingReadout": "Fringe spacing ≈ λ / sin θ<sub>r</sub> = {{value}} λ",
+    "focusReadout": "Image of object 1: {{value}} λ wide",
+    "expectedReadout": "Aperture estimate 0.89 λz/W: {{value}} λ",
+    "computing": "Reconstructing… {{value}} %",
+    "equation": "I = |R + O|²"
   },
   "a11y": {
-    "screenSummary": {
-      "playArea": "The play area shows the main simulation content.",
-      "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-      "interactionHint": "Explore the simulation by interacting with its controls."
+    "gratings": {
+      "screenSummary": {
+        "playArea": "The play area shows the far-field intensity of light through N identical slits plotted against sine theta, the pattern as it would look on a screen, and a phasor diagram: one arrow per slit, added tip to tail, for the direction under the cursor.",
+        "controlArea": "The control area has sliders for the number of slits, the slit spacing, the slit width and the wavelength, checkboxes for the single-slit envelope and for showing peak heights growing as N squared, a play button that sweeps the cursor, and a Reset All button.",
+        "interactionHint": "Move the cursor across a principal maximum and watch the phasor chain curl up and close. Then add slits and see the maxima sharpen."
+      },
+      "currentDetailsPattern": "{{count}} slits, spacing {{spacing}} micrometres, width {{width}} micrometres, wavelength {{wavelength}} nanometres. {{missing}} At the cursor, sine theta is {{sinTheta}}, the phase step is {{phi}} of a full turn, and the intensity is {{intensity}} of the maximum.",
+      "controls": {
+        "cursor": "Angle cursor",
+        "cursorHelp": "Move left or right to choose the direction whose phasors are shown.",
+        "sweep": "Sweep the cursor"
+      }
     },
-    "currentDetails": "The simulation is in its initial state.",
-    "controls": {
-      "exampleControl": "Example control"
+    "resolvingPower": {
+      "screenSummary": {
+        "playArea": "The play area shows a grating spectrum of two close spectral lines in every order, and a zoomed chart of the two lines in the chosen order with their sum and the first zero of the shorter line.",
+        "controlArea": "The control area has buttons for three line pairs, sliders for the wavelength, the line separation, the grating ruling and the number of illuminated lines, buttons to choose the order, a button that sets the number of lines to just resolve the pair, and a Reset All button.",
+        "interactionHint": "Start with the sodium doublet and too few lines. Add lines, or go to a higher order, until the two peaks separate."
+      },
+      "currentDetailsPattern": "Lines at {{wavelength}} and {{wavelength2}} nanometres, in order {{order}}, with {{lines}} illuminated lines. Resolving power {{power}}, needed {{needed}}. {{verdict}}.",
+      "controls": {
+        "order": "Diffraction order"
+      }
+    },
+    "circularAperture": {
+      "screenSummary": {
+        "playArea": "The play area shows the image of two equal point sources made through a circular aperture, each blurred into an Airy disk with faint rings, and a chart of the intensity along the line through both.",
+        "controlArea": "The control area has preset buttons for the eye, the Hubble Space Telescope and a ground telescope, sliders for the aperture diameter, the wavelength and the angular separation of the sources, checkboxes for atmospheric seeing, a slit comparison and brighter rings, and a Reset All button.",
+        "interactionHint": "Bring the sources together until the dip between the peaks disappears. Then make the aperture bigger, or the wavelength shorter."
+      },
+      "currentDetailsPattern": "Aperture {{diameter}}, wavelength {{wavelength}} nanometres. The Rayleigh angle is {{rayleigh}} arcseconds and the sources are {{separation}} arcseconds apart, {{ratio}} Rayleigh angles. {{verdict}}."
+    },
+    "holography": {
+      "screenSummary": {
+        "playArea": "The play area is a side view: point objects on the left, the film on the right, and a reference beam arriving at an angle. In Record mode the film records the interference of the object light and the reference beam. In Reconstruct mode only the reference beam lights the film, and the light it diffracts is traced back to show where the images form.",
+        "controlArea": "The control area has Record and Reconstruct buttons, a number of objects, sliders for the reference angle and the coherence length, checkboxes to cut the film in half and block the zero order, a close-up of the film, readouts, and a Reset All button.",
+        "interactionHint": "Record, then reconstruct and find the bright spots where the objects were. Cut the film in half and compare the spot width."
+      },
+      "currentDetailsPattern": "{{mode}} mode, {{count}} objects, reference angle {{angle}} degrees, coherence length {{coherence}} wavelengths. {{focus}}",
+      "focusPattern": "The image of object 1 is {{width}} wavelengths wide.",
+      "controls": {
+        "object": "Object {{number}}",
+        "objectHelp": "Move the object along the film or nearer and farther.",
+        "mode": "Record or reconstruct"
+      }
     }
   },
   "preferences": {
     "title": "Simulation",
-    "exampleToggle": "Example Toggle"
+    "showEquations": "Show equations",
+    "showEquationsHelp": "Show the governing equation on each screen."
   }
 }

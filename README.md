@@ -1,24 +1,48 @@
-# SceneryStack Template
+# Diffraction Lab
 
 [![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 
-A reusable SceneryStack simulation template for one or N screens, built with
-[SceneryStack](https://scenerystack.org/), Vite 8, TypeScript 7, and Biome 2.
+Fraunhofer diffraction for a modern physics course: from the phasor picture of N slits to the limits
+of resolution and the hologram. Add up one phasor per slit and watch a grating's maxima sharpen. Ask
+how many illuminated lines it takes to split the sodium doublet. Image two stars through a circular
+aperture and find the Rayleigh criterion. Then record and reconstruct a hologram. Written to
+accompany Chapter 5 (Diffraction of Light) of the QuadriviumPress *Modern Physics* text. Built with
+[SceneryStack](https://scenerystack.org/); runs offline as a Progressive Web App.
 
 ## Features
 
-- SceneryStack scaffold with model/view separation (`rename` + `scaffold-screens` for one or N screens)
-- English, Spanish, and French localization via `StringManager`
-- Default and projector color profiles
-- Progressive Web App (installable, offline-capable)
-- Git hooks for Biome pre-commit checks
-- Shared GitHub Actions CI via `OpenLyceum/Baton`
+- **Gratings.** N identical slits (1 to 40) of width a and spacing d, lit by any visible wavelength.
+  The intensity I(sin θ) is drawn with its single-slit envelope, missing orders are marked, and the
+  same pattern appears as light on a screen. Drag the cursor across the chart, or press play to
+  sweep it, and the **phasor diagram** adds one arrow per slit for that direction: the chain closes
+  into a polygon at the first zero (φ = 2π/N) and straightens at every principal maximum. Show peak
+  heights growing as N².
+- **Resolving Power.** A pair of close spectral lines (the sodium doublet, the mercury yellow pair,
+  or the hydrogen/deuterium α isotope shift) on a grating with a chosen ruling, number of
+  illuminated lines N and order m. A strip shows both lines in every order from −90° to +90°, and a
+  zoomed chart shows the two profiles and their sum, with the first zero of the shorter line marked.
+  Readouts compare R = mN with the λ/Δλ the pair needs, and one button sets N to just resolve it
+  (982 lines for sodium in first order).
+- **Circular Aperture.** Two equal point sources imaged through an aperture of diameter D: two Airy
+  disks with faint rings, and the intensity along the line through both. Readouts give the Rayleigh
+  angle 1.22 λ/D, the separation in Rayleigh angles and the depth of the dip between the peaks
+  (about 26 % at the criterion). Presets reproduce the book's examples: the eye's pupil, Hubble, and
+  the same mirror on the ground under 1″ atmospheric seeing. Compare with a slit of the same width.
+- **Holography.** A side view of an off-axis transmission hologram, with lengths in wavelengths.
+  Record: drag up to three point objects, set the reference-beam angle and the laser's coherence
+  length, and see the fringes on the film (with a close-up). Reconstruct: only the reference beam
+  lights the film, and the diffracted light, traced back, focuses where the objects were. Cut the
+  film in half and the images are still all there, but wider: the Rayleigh criterion again.
+- **Accessible:**
+  - Every control works from the keyboard, including the chart cursor and the objects.
+  - Each screen has a live screen summary and a keyboard-help dialog.
+  - English, French and Spanish, default and projector color profiles, and an optional display of
+    each screen's governing equation.
 
 ## Quick Start
 
 ```bash
 npm install
-npm run icons    # generate PNG icons from public/icons/icon.svg
 npm start        # dev server → http://localhost:5173
 ```
 
@@ -39,12 +63,8 @@ npm start        # dev server → http://localhost:5173
 | `npm run format` | Auto-format all files |
 | `npm run fix` | Lint + auto-fix |
 | `npm run icons` | Regenerate PNG icons from `public/icons/icon.svg` |
-| `npm run rename` | Sim-level fork/rename (`--id`, `--name`) |
-| `npm run scaffold-screens` | Emit N fleet-named screen packages from `sim-screen/` (`--shared-model` optional) |
 | `npm run release` | `check && lint && build && test`, then version patch + push tags |
 | `npm run clean` | Remove `dist/` |
-
-New sims start at `version: "0.0.0"` in `package.json`. Bump only when cutting a release (for example `npm version patch` and a matching git tag). Keep `name` in kebab-case; it is separate from the SceneryStack sim identifier in `src/init.ts`, which reads its `version` from `package.json`.
 
 ## Tech Stack
 

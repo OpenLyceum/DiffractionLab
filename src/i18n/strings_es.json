@@ -1,21 +1,170 @@
 {
-  "title": "Plantilla de Simulación",
+  "title": "Laboratorio de difracción",
   "screens": {
-    "sim": "Simulación"
+    "gratings": "Redes",
+    "resolvingPower": "Poder de resolución",
+    "circularAperture": "Abertura circular",
+    "holography": "Holografía"
+  },
+  "units": {
+    "valueUnitsPattern": "{{value}} {{units}}",
+    "micrometres": "µm",
+    "nanometres": "nm",
+    "metres": "m",
+    "millimetres": "mm",
+    "linesPerMillimetre": "líneas/mm",
+    "degrees": "°",
+    "arcseconds": "″",
+    "wavelengths": "λ"
+  },
+  "common": {
+    "wavelength": "Longitud de onda λ",
+    "intensity": "Intensidad"
+  },
+  "gratings": {
+    "slitCount": "Número de rendijas N",
+    "slitSpacing": "Separación d",
+    "slitWidth": "Ancho de rendija a",
+    "showEnvelope": "Envolvente de una rendija",
+    "scaleByNSquared": "Altura de los picos ∝ N²",
+    "sweep": "Barrer φ",
+    "intensityAxis": "I / I<sub>max</sub>",
+    "intensityN2Axis": "I / I<sub>1</sub>",
+    "sinThetaAxis": "sen θ",
+    "screen": "Pantalla",
+    "phasorTitle": "Fasores en el cursor",
+    "phasorCaption": "Una flecha por rendija, cada una girada φ",
+    "phiReadout": "φ = {{value}} × 2π",
+    "intensityReadout": "I / I<sub>max</sub> = {{value}}",
+    "missingOrders": "Órdenes ausentes: ±{{orders}}",
+    "noMissingOrders": "Órdenes ausentes: ninguno",
+    "fringesInEnvelope": "Franjas brillantes en la envolvente central: {{count}}",
+    "equation": "I = I<sub>max</sub> sinc²(β/2) [sen(Nφ/2) / N sen(φ/2)]²"
+  },
+  "resolvingPower": {
+    "presets": "Líneas espectrales",
+    "sodium": "Doblete de Na",
+    "mercury": "Amarillo de Hg",
+    "hydrogen": "H / D α",
+    "lineWavelength": "Longitud de onda λ",
+    "lineSeparation": "Separación Δλ",
+    "ruling": "Líneas de la red",
+    "illuminatedLines": "Líneas iluminadas N",
+    "order": "Orden m",
+    "justResolve": "Ajustar N para resolver justo",
+    "zoomAxis": "Δθ respecto a las líneas de orden m (arcmin)",
+    "intensityAxis": "Intensidad",
+    "spectrumTitle": "Ambas líneas en cada orden, de −90° a +90°",
+    "resolvingPowerReadout": "R = mN = {{value}}",
+    "requiredReadout": "Necesario: λ/Δλ = {{value}}",
+    "angleReadout": "θ<sub>m</sub> = {{value}}°",
+    "dispersionReadout": "dθ/dλ = {{value}} arcmin/nm",
+    "resolved": "Resueltas",
+    "justResolved": "Justo resueltas (Rayleigh)",
+    "unresolved": "No resueltas",
+    "orderUnavailable": "El orden {{order}} no existe para esta red",
+    "firstLine": "λ",
+    "secondLine": "λ + Δλ",
+    "sum": "Suma",
+    "rayleighMarker": "primer cero de λ",
+    "equation": "R = λ/Δλ = mN"
+  },
+  "circularAperture": {
+    "presets": "Ajustes",
+    "eye": "Ojo",
+    "hubble": "Hubble",
+    "ground": "Telescopio terrestre",
+    "diameter": "Diámetro de la abertura D",
+    "separation": "Separación de las fuentes",
+    "seeing": "Turbulencia atmosférica (1″)",
+    "compareSlit": "Comparar: rendija de ancho D",
+    "boostRings": "Realzar los anillos débiles",
+    "imageTitle": "Imagen de dos fuentes puntuales",
+    "fieldOfView": "{{value}}″ de ancho",
+    "angleAxis": "Ángulo (arcsec)",
+    "intensityAxis": "Intensidad",
+    "rayleighReadout": "Ángulo de Rayleigh θ<sub>R</sub> = {{value}}″",
+    "ratioReadout": "Separación = {{value}} θ<sub>R</sub>",
+    "dipReadout": "Valle entre los picos: {{value}} %",
+    "noDip": "Sin valle: una sola mancha",
+    "resolved": "Resueltas",
+    "justResolved": "Justo resueltas (Rayleigh)",
+    "unresolved": "No resueltas",
+    "slitCurve": "rendija, primer cero en λ/D",
+    "equation": "θ<sub>R</sub> = 1,22 λ/D"
+  },
+  "holography": {
+    "record": "Grabar",
+    "reconstruct": "Reconstruir",
+    "objectCount": "Objetos",
+    "referenceAngle": "Ángulo de referencia",
+    "coherenceLength": "Longitud de coherencia",
+    "cutFilm": "Cortar la película a la mitad",
+    "blockZeroOrder": "Bloquear el orden cero",
+    "film": "Película",
+    "referenceBeam": "Haz de referencia",
+    "objectLabel": "Objeto {{number}}",
+    "viewer": "Observador",
+    "virtualImage": "Imágenes virtuales",
+    "closeUp": "Detalle de la película ({{value}} λ)",
+    "notToScale": "Longitudes en longitudes de onda λ. Un holograma real mide unas 10⁵ λ.",
+    "fringeSpacingReadout": "Separación de franjas ≈ λ / sen θ<sub>r</sub> = {{value}} λ",
+    "focusReadout": "Imagen del objeto 1: {{value}} λ de ancho",
+    "expectedReadout": "Estimación por abertura 0,89 λz/W: {{value}} λ",
+    "computing": "Reconstruyendo… {{value}} %",
+    "equation": "I = |R + O|²"
   },
   "a11y": {
-    "screenSummary": {
-      "playArea": "El área de juego muestra el contenido principal de la simulación.",
-      "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-      "interactionHint": "Explora la simulación interactuando con sus controles."
+    "gratings": {
+      "screenSummary": {
+        "playArea": "El área de juego muestra la intensidad en campo lejano de la luz que atraviesa N rendijas idénticas en función del seno de theta, el patrón tal como se vería en una pantalla, y un diagrama de fasores: una flecha por rendija, sumadas punta con cola, para la dirección bajo el cursor.",
+        "controlArea": "El área de control tiene deslizadores para el número de rendijas, la separación, el ancho de rendija y la longitud de onda, casillas para la envolvente de una rendija y para picos que crecen como N al cuadrado, un botón de reproducción que barre el cursor y un botón Restablecer todo.",
+        "interactionHint": "Mueva el cursor a través de un máximo principal y observe cómo la cadena de fasores se enrolla y se cierra. Luego agregue rendijas y vea cómo se afinan los máximos."
+      },
+      "currentDetailsPattern": "{{count}} rendijas, separación de {{spacing}} micrómetros, ancho de {{width}} micrómetros, longitud de onda de {{wavelength}} nanómetros. {{missing}} En el cursor, el seno de theta es {{sinTheta}}, el desfase es {{phi}} de vuelta y la intensidad es {{intensity}} del máximo.",
+      "controls": {
+        "cursor": "Cursor de ángulo",
+        "cursorHelp": "Mueva a la izquierda o a la derecha para elegir la dirección cuyos fasores se muestran.",
+        "sweep": "Barrer el cursor"
+      }
     },
-    "currentDetails": "La simulación está en su estado inicial.",
-    "controls": {
-      "exampleControl": "Control de ejemplo"
+    "resolvingPower": {
+      "screenSummary": {
+        "playArea": "El área de juego muestra el espectro de una red para dos líneas espectrales cercanas en cada orden, y un gráfico ampliado de las dos líneas en el orden elegido, con su suma y el primer cero de la línea más corta.",
+        "controlArea": "El área de control tiene botones para tres pares de líneas, deslizadores para la longitud de onda, la separación de las líneas, las líneas de la red y el número de líneas iluminadas, botones para elegir el orden, un botón que ajusta el número de líneas para resolver justo el par y un botón Restablecer todo.",
+        "interactionHint": "Empiece con el doblete del sodio y muy pocas líneas. Agregue líneas, o pase a un orden más alto, hasta que los dos picos se separen."
+      },
+      "currentDetailsPattern": "Líneas en {{wavelength}} y {{wavelength2}} nanómetros, en el orden {{order}}, con {{lines}} líneas iluminadas. Poder de resolución {{power}}, necesario {{needed}}. {{verdict}}.",
+      "controls": {
+        "order": "Orden de difracción"
+      }
+    },
+    "circularAperture": {
+      "screenSummary": {
+        "playArea": "El área de juego muestra la imagen de dos fuentes puntuales iguales formada por una abertura circular, cada una difuminada en un disco de Airy con anillos débiles, y un gráfico de la intensidad a lo largo de la línea que las une.",
+        "controlArea": "El área de control tiene ajustes para el ojo, el telescopio espacial Hubble y un telescopio terrestre, deslizadores para el diámetro de la abertura, la longitud de onda y la separación angular de las fuentes, casillas para la turbulencia atmosférica, una comparación con una rendija y anillos realzados, y un botón Restablecer todo.",
+        "interactionHint": "Acerque las fuentes hasta que desaparezca el valle entre los picos. Luego agrande la abertura o acorte la longitud de onda."
+      },
+      "currentDetailsPattern": "Abertura de {{diameter}}, longitud de onda de {{wavelength}} nanómetros. El ángulo de Rayleigh es {{rayleigh}} segundos de arco y las fuentes están a {{separation}} segundos de arco, es decir {{ratio}} ángulos de Rayleigh. {{verdict}}."
+    },
+    "holography": {
+      "screenSummary": {
+        "playArea": "El área de juego es una vista lateral: objetos puntuales a la izquierda, la película a la derecha y un haz de referencia que llega inclinado. En el modo Grabar, la película registra la interferencia de la luz de los objetos con el haz de referencia. En el modo Reconstruir, solo el haz de referencia ilumina la película y la luz difractada se rastrea hacia atrás para mostrar dónde se forman las imágenes.",
+        "controlArea": "El área de control tiene los botones Grabar y Reconstruir, un número de objetos, deslizadores para el ángulo de referencia y la longitud de coherencia, casillas para cortar la película a la mitad y bloquear el orden cero, un detalle de la película, lecturas y un botón Restablecer todo.",
+        "interactionHint": "Grabe, luego reconstruya y busque las manchas brillantes donde estaban los objetos. Corte la película a la mitad y compare el ancho de las manchas."
+      },
+      "currentDetailsPattern": "Modo {{mode}}, {{count}} objetos, ángulo de referencia de {{angle}} grados, longitud de coherencia de {{coherence}} longitudes de onda. {{focus}}",
+      "focusPattern": "La imagen del objeto 1 mide {{width}} longitudes de onda de ancho.",
+      "controls": {
+        "object": "Objeto {{number}}",
+        "objectHelp": "Mueva el objeto a lo largo de la película, o más cerca o más lejos.",
+        "mode": "Grabar o reconstruir"
+      }
     }
   },
   "preferences": {
     "title": "Simulación",
-    "exampleToggle": "Ejemplo de alternancia"
+    "showEquations": "Mostrar ecuaciones",
+    "showEquationsHelp": "Mostrar la ecuación principal en cada pantalla."
   }
 }

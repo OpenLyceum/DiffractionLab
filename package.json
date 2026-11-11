@@ -1,20 +1,26 @@
 {
-  "name": "scenerystack-template",
+  "name": "diffraction-lab",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "GitHub template for OpenLyceum SceneryStack sims (rename + scaffold-screens for one or N screens).",
+  "description": "Fraunhofer diffraction for modern physics: add N slit phasors to see grating maxima sharpen, resolve close spectral lines with R = mN, image two stars through a circular aperture (Airy disk and Rayleigh criterion), and record and reconstruct a hologram.",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenLyceum/SceneryStackTemplate.git"
+    "url": "https://github.com/OpenLyceum/DiffractionLab.git"
   },
   "keywords": [
-    "template",
     "simulation",
     "SceneryStack",
     "interactive",
     "physics",
+    "optics",
+    "diffraction",
+    "diffraction-grating",
+    "phasors",
+    "rayleigh-criterion",
+    "airy-disk",
+    "holography",
     "education",
     "pwa"
   ],
@@ -36,8 +42,6 @@
     "test:fuzz:quick": "node scripts/test-fuzz.ts 10",
     "test:fuzz:long": "node scripts/test-fuzz.ts 300",
     "icons": "node scripts/generate-icons.ts",
-    "rename": "node scripts/rename-sim.ts",
-    "scaffold-screens": "node scripts/scaffold-screens.ts",
     "clean": "rm -rf dist",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"
   },
