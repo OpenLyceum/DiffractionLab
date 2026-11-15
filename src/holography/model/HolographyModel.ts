@@ -55,7 +55,7 @@ import {
 } from "../../DiffractionLabConstants.js";
 import DiffractionLabNamespace from "../../DiffractionLabNamespace.js";
 
-export const HOLOGRAPHY_MODES = ["record", "reconstruct"] as const;
+const HOLOGRAPHY_MODES = ["record", "reconstruct"] as const;
 export type HolographyMode = (typeof HOLOGRAPHY_MODES)[number];
 
 export class HolographyModel implements TModel {

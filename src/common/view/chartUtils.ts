@@ -72,12 +72,6 @@ export const formatSignificant = (value: number, digits: number = CONTROLS.DEFAU
   return String(Number(value.toPrecision(digits))).replace("-", "−");
 };
 
-/** Format with an explicit sign (+ or −), for velocities and shifts. */
-export const formatSigned = (value: number, digits: number = CONTROLS.DEFAULT_SIGNIFICANT_FIGURES): string => {
-  const text = formatSignificant(value, digits);
-  return value > 0 ? `+${text}` : text;
-};
-
 /** Format an integer with thin-space thousands separators (1 000 000). */
 export const formatGrouped = (value: number): string => String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 

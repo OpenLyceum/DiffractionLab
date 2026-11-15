@@ -11,7 +11,7 @@
 
 import { phaseStep, singleSlitAmplitude } from "./fraunhofer.js";
 
-export type PhasorPoint = { readonly x: number; readonly y: number };
+type PhasorPoint = { readonly x: number; readonly y: number };
 
 export type PhasorChain = {
   /** N + 1 points: the tail of the first phasor, then each tip in turn. */

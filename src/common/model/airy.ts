@@ -53,7 +53,7 @@ export function besselJ1(x: number): number {
 }
 
 /** Airy amplitude 2J₁(u)/u, equal to 1 at u = 0. */
-export function airyAmplitude(u: number): number {
+function airyAmplitude(u: number): number {
   if (Math.abs(u) < NEAR_ZERO_AIRY) {
     return 1 - (u * u) / 8;
   }
@@ -75,7 +75,7 @@ export function rayleighAngle(wavelength: number, diameter: number): number {
  * Airy intensity at an angular distance expressed in units of the Rayleigh
  * angle (small angles): 1 at the centre, the first dark ring at r = 1.
  */
-export function airyIntensityInRayleighUnits(r: number): number {
+function airyIntensityInRayleighUnits(r: number): number {
   return airyIntensity(J1_FIRST_ZERO * r);
 }
 

@@ -20,7 +20,7 @@
 import { INTEGER_TOLERANCE, NEAR_ZERO_SINC } from "../../DiffractionLabConstants.js";
 
 /** sin(x)/x, with its Taylor series near zero. */
-export function sinc(x: number): number {
+function sinc(x: number): number {
   if (Math.abs(x) < NEAR_ZERO_SINC) {
     return 1 - (x * x) / 6;
   }
@@ -28,7 +28,7 @@ export function sinc(x: number): number {
 }
 
 /** Phase across one slit of width `a`: β = 2π a sinθ / λ. */
-export function slitPhase(sinTheta: number, a: number, wavelength: number): number {
+function slitPhase(sinTheta: number, a: number, wavelength: number): number {
   return (2 * Math.PI * a * sinTheta) / wavelength;
 }
 

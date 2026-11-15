@@ -77,7 +77,7 @@ export function coherenceFactor(pathDifference: number, coherenceLength: number)
 }
 
 /** Positions of the film samples, at sample centres across the full width. */
-export function filmPositions(setup: HologramSetup): Float64Array {
+function filmPositions(setup: HologramSetup): Float64Array {
   const count = Math.max(2, Math.round(setup.filmWidth * setup.samplesPerWavelength));
   const spacing = setup.filmWidth / count;
   const positions = new Float64Array(count);
