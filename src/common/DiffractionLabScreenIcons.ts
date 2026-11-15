@@ -9,12 +9,13 @@ import { Shape } from "scenerystack/kite";
 import { Circle, Line, Node, Path, Rectangle } from "scenerystack/scenery";
 import { ScreenIcon } from "scenerystack/sim";
 import DiffractionLabColors from "../DiffractionLabColors.js";
+import { CIRCULAR_APERTURE_ICON, HOLOGRAPHY_ICON, ICON_CHART, SCREEN_ICONS } from "../DiffractionLabConstants.js";
 import { airyIntensity } from "./model/airy.js";
 import { arrayIntensity, gratingIntensity } from "./model/fraunhofer.js";
 import { lightColor } from "./view/lightColor.js";
 
-const W = 548;
-const H = 373;
+const W = SCREEN_ICONS.WIDTH;
+const H = SCREEN_ICONS.HEIGHT;
 
 function background(): Rectangle {
   return new Rectangle(0, 0, W, H, { fill: DiffractionLabColors.backgroundColorProperty });
@@ -29,12 +30,12 @@ function iconFrom(content: Node): ScreenIcon {
 }
 
 /** A curve y = f(u) for u in [−1, 1], drawn into the icon's plotting box. */
-function curve(f: (u: number) => number, samples = 600): Shape {
+function curve(f: (u: number) => number, samples: number = ICON_CHART.DEFAULT_SAMPLES): Shape {
   const shape = new Shape();
-  const left = 40;
-  const width = W - 80;
-  const bottom = H - 50;
-  const height = H - 100;
+  const left = ICON_CHART.LEFT;
+  const width = W - 2 * ICON_CHART.LEFT;
+  const bottom = H - ICON_CHART.BOTTOM_INSET;
+  const height = H - ICON_CHART.HEIGHT_INSET;
   for (let i = 0; i < samples; i++) {
     const u = -1 + (2 * i) / (samples - 1);
     const x = left + ((u + 1) / 2) * width;
@@ -49,7 +50,16 @@ function curve(f: (u: number) => number, samples = 600): Shape {
 }
 
 function baseline(): Line {
-  return new Line(30, H - 50, W - 30, H - 50, { stroke: DiffractionLabColors.chartAxisColorProperty, lineWidth: 3 });
+  return new Line(
+    ICON_CHART.BASELINE_INSET,
+    H - ICON_CHART.BOTTOM_INSET,
+    W - ICON_CHART.BASELINE_INSET,
+    H - ICON_CHART.BOTTOM_INSET,
+    {
+      stroke: DiffractionLabColors.chartAxisColorProperty,
+      lineWidth: ICON_CHART.BASELINE_WIDTH,
+    },
+  );
 }
 
 export function createGratingsIcon(): ScreenIcon {
@@ -63,10 +73,13 @@ export function createGratingsIcon(): ScreenIcon {
         baseline(),
         new Path(curve(envelope), {
           stroke: DiffractionLabColors.envelopeCurveColorProperty,
-          lineWidth: 4,
-          lineDash: [12, 8],
+          lineWidth: ICON_CHART.ENVELOPE_LINE_WIDTH,
+          lineDash: [...ICON_CHART.ENVELOPE_DASH],
         }),
-        new Path(curve(pattern, 1200), { stroke: DiffractionLabColors.intensityCurveColorProperty, lineWidth: 5 }),
+        new Path(curve(pattern, ICON_CHART.PATTERN_SAMPLES), {
+          stroke: DiffractionLabColors.intensityCurveColorProperty,
+          lineWidth: ICON_CHART.PATTERN_LINE_WIDTH,
+        }),
       ],
     }),
   );
@@ -83,11 +96,17 @@ export function createResolvingPowerIcon(): ScreenIcon {
       children: [
         background(),
         baseline(),
-        new Path(curve(first), { stroke: DiffractionLabColors.firstLineColorProperty, lineWidth: 5 }),
-        new Path(curve(second), { stroke: DiffractionLabColors.secondLineColorProperty, lineWidth: 5 }),
+        new Path(curve(first), {
+          stroke: DiffractionLabColors.firstLineColorProperty,
+          lineWidth: ICON_CHART.PATTERN_LINE_WIDTH,
+        }),
+        new Path(curve(second), {
+          stroke: DiffractionLabColors.secondLineColorProperty,
+          lineWidth: ICON_CHART.PATTERN_LINE_WIDTH,
+        }),
         new Path(
           curve((u) => first(u) + second(u)),
-          { stroke: DiffractionLabColors.intensityCurveColorProperty, lineWidth: 6 },
+          { stroke: DiffractionLabColors.intensityCurveColorProperty, lineWidth: ICON_CHART.SUM_LINE_WIDTH },
         ),
       ],
     }),
@@ -98,17 +117,20 @@ export function createCircularApertureIcon(): ScreenIcon {
   // Two Airy disks: bright cores and faint rings, drawn as circles whose
   // opacity follows the Airy intensity (with the rings lifted to be seen).
   const children: Node[] = [background()];
-  for (const centerX of [W / 2 - 85, W / 2 + 85]) {
-    for (let r = 150; r > 0; r -= 3) {
-      const u = (r / 150) * 13;
+  for (const centerX of [
+    W / 2 - CIRCULAR_APERTURE_ICON.SOURCE_OFFSET_X,
+    W / 2 + CIRCULAR_APERTURE_ICON.SOURCE_OFFSET_X,
+  ]) {
+    for (let r = CIRCULAR_APERTURE_ICON.MAX_RADIUS; r > 0; r -= CIRCULAR_APERTURE_ICON.RADIUS_STEP) {
+      const u = (r / CIRCULAR_APERTURE_ICON.MAX_RADIUS) * CIRCULAR_APERTURE_ICON.RAYLEIGH_UNITS_AT_EDGE;
       const value = Math.sqrt(airyIntensity(u));
-      if (value > 0.02) {
+      if (value > CIRCULAR_APERTURE_ICON.MIN_OPACITY) {
         children.push(
           new Circle(r, {
             x: centerX,
             y: H / 2,
-            stroke: lightColor(530),
-            lineWidth: 3,
+            stroke: lightColor(CIRCULAR_APERTURE_ICON.WAVELENGTH_NM),
+            lineWidth: CIRCULAR_APERTURE_ICON.LINE_WIDTH,
             opacity: Math.min(1, value),
           }),
         );
@@ -119,30 +141,52 @@ export function createCircularApertureIcon(): ScreenIcon {
 }
 
 export function createHolographyIcon(): ScreenIcon {
-  const filmX = W - 110;
-  const object = { x: 120, y: H / 2 - 30 };
+  const filmX = W - HOLOGRAPHY_ICON.FILM_INSET_RIGHT;
+  const object = { x: HOLOGRAPHY_ICON.OBJECT_X, y: H / 2 - HOLOGRAPHY_ICON.OBJECT_Y_OFFSET };
   const wavefronts = new Shape();
-  for (let r = 40; r < filmX - object.x; r += 40) {
+  for (let r = HOLOGRAPHY_ICON.WAVEFRONT_START; r < filmX - object.x; r += HOLOGRAPHY_ICON.WAVEFRONT_STEP) {
     wavefronts.arc(object.x, object.y, r, -Math.PI / 3, Math.PI / 3, false);
     wavefronts.newSubpath();
   }
   const fringes = new Shape();
-  for (let y = 40; y < H - 40; y += 9) {
-    fringes.rect(filmX, y, 26, 4);
+  for (let y = HOLOGRAPHY_ICON.FRINGE_TOP; y < H - HOLOGRAPHY_ICON.FRINGE_TOP; y += HOLOGRAPHY_ICON.FRINGE_STEP) {
+    fringes.rect(filmX, y, HOLOGRAPHY_ICON.FRINGE_WIDTH, HOLOGRAPHY_ICON.FRINGE_HEIGHT);
   }
   const arrows = new Shape();
-  for (const y of [H - 80, H - 150]) {
-    arrows.moveTo(filmX - 170, y + 70).lineTo(filmX - 6, y);
+  for (const yOffset of HOLOGRAPHY_ICON.ARROW_Y_OFFSETS) {
+    const y = H - yOffset;
+    arrows
+      .moveTo(filmX - HOLOGRAPHY_ICON.ARROW_TAIL_X, y + HOLOGRAPHY_ICON.ARROW_TAIL_Y)
+      .lineTo(filmX - HOLOGRAPHY_ICON.ARROW_TIP_INSET, y);
   }
   return iconFrom(
     new Node({
       children: [
         background(),
-        new Path(wavefronts, { stroke: DiffractionLabColors.objectColorProperty, lineWidth: 4, opacity: 0.7 }),
-        new Path(arrows, { stroke: DiffractionLabColors.referenceBeamColorProperty, lineWidth: 6 }),
-        new Rectangle(filmX, 40, 26, H - 80, { fill: DiffractionLabColors.filmColorProperty }),
+        new Path(wavefronts, {
+          stroke: DiffractionLabColors.objectColorProperty,
+          lineWidth: HOLOGRAPHY_ICON.WAVEFRONT_LINE_WIDTH,
+          opacity: HOLOGRAPHY_ICON.WAVEFRONT_OPACITY,
+        }),
+        new Path(arrows, {
+          stroke: DiffractionLabColors.referenceBeamColorProperty,
+          lineWidth: HOLOGRAPHY_ICON.ARROW_LINE_WIDTH,
+        }),
+        new Rectangle(
+          filmX,
+          HOLOGRAPHY_ICON.FRINGE_TOP,
+          HOLOGRAPHY_ICON.FRINGE_WIDTH,
+          H - 2 * HOLOGRAPHY_ICON.FRINGE_TOP,
+          {
+            fill: DiffractionLabColors.filmColorProperty,
+          },
+        ),
         new Path(fringes, { fill: DiffractionLabColors.exposedColorProperty }),
-        new Circle(16, { x: object.x, y: object.y, fill: DiffractionLabColors.objectColorProperty }),
+        new Circle(HOLOGRAPHY_ICON.OBJECT_RADIUS, {
+          x: object.x,
+          y: object.y,
+          fill: DiffractionLabColors.objectColorProperty,
+        }),
       ],
     }),
   );

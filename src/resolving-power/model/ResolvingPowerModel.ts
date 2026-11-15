@@ -18,9 +18,11 @@ import {
   ILLUMINATED_LINES_DEFAULT,
   ILLUMINATED_LINES_RANGE,
   JUST_RESOLVED_TOLERANCE,
+  LINE_PAIR_PRESETS,
   LINE_SEPARATION_RANGE_NM,
   LINE_WAVELENGTH_RANGE_NM,
   MAX_ORDER_BUTTON,
+  NM_PER_MM,
   RULING_DEFAULT_PER_MM,
   RULING_RANGE_PER_MM,
 } from "../../DiffractionLabConstants.js";
@@ -38,16 +40,32 @@ export type LinePair = {
  * mercury yellow pair, and the hydrogen/deuterium Balmer-α isotope shift.
  */
 export const LINE_PAIRS: readonly LinePair[] = [
-  { id: "sodium", wavelengthNm: 589.0, separationNm: 0.6 },
-  { id: "mercury", wavelengthNm: 577.0, separationNm: 2.1 },
-  { id: "hydrogen", wavelengthNm: 656.1, separationNm: 0.18 },
+  {
+    id: "sodium",
+    wavelengthNm: LINE_PAIR_PRESETS.SODIUM_WAVELENGTH_NM,
+    separationNm: LINE_PAIR_PRESETS.SODIUM_SEPARATION_NM,
+  },
+  {
+    id: "mercury",
+    wavelengthNm: LINE_PAIR_PRESETS.MERCURY_WAVELENGTH_NM,
+    separationNm: LINE_PAIR_PRESETS.MERCURY_SEPARATION_NM,
+  },
+  {
+    id: "hydrogen",
+    wavelengthNm: LINE_PAIR_PRESETS.HYDROGEN_WAVELENGTH_NM,
+    separationNm: LINE_PAIR_PRESETS.HYDROGEN_SEPARATION_NM,
+  },
 ];
 
 export type ResolutionVerdict = "resolved" | "justResolved" | "unresolved";
 
 export class ResolvingPowerModel implements TModel {
-  public readonly wavelengthProperty = new NumberProperty(589.0, { range: LINE_WAVELENGTH_RANGE_NM });
-  public readonly separationProperty = new NumberProperty(0.6, { range: LINE_SEPARATION_RANGE_NM });
+  public readonly wavelengthProperty = new NumberProperty(LINE_PAIR_PRESETS.SODIUM_WAVELENGTH_NM, {
+    range: LINE_WAVELENGTH_RANGE_NM,
+  });
+  public readonly separationProperty = new NumberProperty(LINE_PAIR_PRESETS.SODIUM_SEPARATION_NM, {
+    range: LINE_SEPARATION_RANGE_NM,
+  });
   public readonly rulingProperty = new NumberProperty(RULING_DEFAULT_PER_MM, {
     range: RULING_RANGE_PER_MM,
     numberType: "Integer",
@@ -76,7 +94,7 @@ export class ResolvingPowerModel implements TModel {
   public readonly verdictProperty: TReadOnlyProperty<ResolutionVerdict>;
 
   public constructor() {
-    this.spacingProperty = new DerivedProperty([this.rulingProperty], (ruling) => 1e6 / ruling);
+    this.spacingProperty = new DerivedProperty([this.rulingProperty], (ruling) => NM_PER_MM / ruling);
     this.maxOrderProperty = new DerivedProperty(
       [this.spacingProperty, this.wavelengthProperty, this.separationProperty],
       (d, lambda, delta) => Math.min(MAX_ORDER_BUTTON, maxUsableOrder(d, lambda + delta)),

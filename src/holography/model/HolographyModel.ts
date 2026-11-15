@@ -24,7 +24,7 @@ import {
   type TReadOnlyProperty,
   type UnknownMultilink,
 } from "scenerystack/axon";
-import { Range, Vector2, Vector2Property } from "scenerystack/dot";
+import { Vector2Property } from "scenerystack/dot";
 import type { TModel } from "scenerystack/joist";
 import {
   type FilmRecord,
@@ -39,6 +39,9 @@ import {
   COHERENCE_LENGTH_RANGE,
   FILM_SAMPLES_PER_WAVELENGTH,
   FILM_WIDTH,
+  HOLOGRAPHY_DEFAULT_OBJECTS,
+  HOLOGRAPHY_OBJECT_COUNT_DEFAULT,
+  HOLOGRAPHY_OBJECT_COUNT_RANGE,
   OBJECT_AMPLITUDE,
   OBJECT_DEPTH_RANGE,
   OBJECT_X_RANGE,
@@ -55,9 +58,6 @@ import DiffractionLabNamespace from "../../DiffractionLabNamespace.js";
 export const HOLOGRAPHY_MODES = ["record", "reconstruct"] as const;
 export type HolographyMode = (typeof HOLOGRAPHY_MODES)[number];
 
-/** Default object positions (x along the film, depth in front of it), λ. */
-const DEFAULT_OBJECTS = [new Vector2(-25, 160), new Vector2(30, 250), new Vector2(5, 110)] as const;
-
 export class HolographyModel implements TModel {
   public readonly modeProperty = new StringUnionProperty<HolographyMode>("record", {
     validValues: HOLOGRAPHY_MODES,
@@ -66,7 +66,10 @@ export class HolographyModel implements TModel {
   /** Object positions: x along the film, y = depth in front of it (λ). */
   public readonly objectPositionProperties: readonly Vector2Property[];
 
-  public readonly objectCountProperty = new NumberProperty(2, { range: new Range(1, 3), numberType: "Integer" });
+  public readonly objectCountProperty = new NumberProperty(HOLOGRAPHY_OBJECT_COUNT_DEFAULT, {
+    range: HOLOGRAPHY_OBJECT_COUNT_RANGE,
+    numberType: "Integer",
+  });
 
   public readonly referenceAngleProperty = new NumberProperty(REFERENCE_ANGLE_DEFAULT_DEG, {
     range: REFERENCE_ANGLE_RANGE_DEG,
@@ -107,7 +110,7 @@ export class HolographyModel implements TModel {
   private readonly setupMultilink: UnknownMultilink;
 
   public constructor() {
-    this.objectPositionProperties = DEFAULT_OBJECTS.map((position) => new Vector2Property(position));
+    this.objectPositionProperties = HOLOGRAPHY_DEFAULT_OBJECTS.map((position) => new Vector2Property(position));
 
     this.setupProperty = DerivedProperty.deriveAny(
       [

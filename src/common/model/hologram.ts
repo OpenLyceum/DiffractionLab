@@ -33,6 +33,8 @@
  * Rayleigh criterion again, for a smaller aperture.
  */
 
+import { HOLOGRAM_WAVE_NUMBER } from "../../DiffractionLabConstants.js";
+
 export type HologramObject = {
   /** Position along the film (λ). */
   readonly x: number;
@@ -63,7 +65,7 @@ export type FilmRecord = {
   readonly spacing: number;
 };
 
-const K = 2 * Math.PI;
+const K = HOLOGRAM_WAVE_NUMBER;
 
 /** Fringe visibility γ(ΔL) = exp(−(ΔL/L_c)²). */
 export function coherenceFactor(pathDifference: number, coherenceLength: number): number {

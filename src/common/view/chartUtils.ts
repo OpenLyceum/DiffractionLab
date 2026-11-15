@@ -8,22 +8,23 @@
  */
 
 import { toFixed } from "scenerystack/dot";
+import { CHART_TICKS, CONTROLS } from "../../DiffractionLabConstants.js";
 
 /**
  * Pick a "nice" step (1, 2, or 5 × 10ⁿ) that yields roughly `targetDivisions`
  * segments across `rangeSpan`.
  */
-export const niceStep = (rangeSpan: number, targetDivisions = 5): number => {
+export const niceStep = (rangeSpan: number, targetDivisions: number = CHART_TICKS.DEFAULT_DIVISIONS): number => {
   const safeSpan = Number.isFinite(rangeSpan) && rangeSpan > 0 ? rangeSpan : 1;
   const raw = safeSpan / targetDivisions;
   const magnitude = 10 ** Math.floor(Math.log10(raw));
   const normalized = raw / magnitude;
   let coefficient: number;
-  if (normalized < 1.5) {
+  if (normalized < CHART_TICKS.UNIT_THRESHOLD) {
     coefficient = 1;
-  } else if (normalized < 3) {
+  } else if (normalized < CHART_TICKS.TWO_THRESHOLD) {
     coefficient = 2;
-  } else if (normalized < 7) {
+  } else if (normalized < CHART_TICKS.FIVE_THRESHOLD) {
     coefficient = 5;
   } else {
     coefficient = 10;
@@ -36,7 +37,7 @@ export const decimalPlacesForStep = (step: number): number => {
   if (step <= 0 || !Number.isFinite(step)) {
     return 0;
   }
-  return Math.min(4, Math.max(0, -Math.floor(Math.log10(step))));
+  return Math.min(CHART_TICKS.MAX_DECIMAL_PLACES, Math.max(0, -Math.floor(Math.log10(step))));
 };
 
 /** Format a tick or readout value to a fixed number of decimals (dot's stable toFixed). */
@@ -55,7 +56,7 @@ export const formatTickValue = (value: number, decimalPlaces: number): string =>
  * smaller is written in scientific notation with a superscript exponent
  * (rich text).
  */
-export const formatSignificant = (value: number, digits = 3): string => {
+export const formatSignificant = (value: number, digits: number = CONTROLS.DEFAULT_SIGNIFICANT_FIGURES): string => {
   if (!Number.isFinite(value)) {
     return "—";
   }
@@ -63,7 +64,7 @@ export const formatSignificant = (value: number, digits = 3): string => {
     return "0";
   }
   const magnitude = Math.abs(value);
-  if (magnitude < 1e-4) {
+  if (magnitude < CHART_TICKS.SCIENTIFIC_THRESHOLD) {
     const exponent = Math.floor(Math.log10(magnitude));
     const mantissa = Number((value / 10 ** exponent).toPrecision(digits));
     return `${String(mantissa).replace("-", "−")} × 10<sup>${String(exponent).replace("-", "−")}</sup>`;
@@ -72,7 +73,7 @@ export const formatSignificant = (value: number, digits = 3): string => {
 };
 
 /** Format with an explicit sign (+ or −), for velocities and shifts. */
-export const formatSigned = (value: number, digits = 3): string => {
+export const formatSigned = (value: number, digits: number = CONTROLS.DEFAULT_SIGNIFICANT_FIGURES): string => {
   const text = formatSignificant(value, digits);
   return value > 0 ? `+${text}` : text;
 };
@@ -93,4 +94,7 @@ export const toPlainText = (text: string): string =>
  * figures, writing values below 10⁻⁴ as 0: they are rounding residue of an exact
  * zero, and "6 × 10⁻³²" would suggest light that is not there.
  */
-export const formatIntensity = (value: number): string => (Math.abs(value) < 1e-4 ? "0" : formatSignificant(value, 3));
+export const formatIntensity = (value: number): string =>
+  Math.abs(value) < CHART_TICKS.SCIENTIFIC_THRESHOLD
+    ? "0"
+    : formatSignificant(value, CONTROLS.DEFAULT_SIGNIFICANT_FIGURES);

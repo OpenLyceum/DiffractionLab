@@ -16,16 +16,13 @@ import { Circle, Node, Path, Rectangle, RichText, Text, VBox } from "scenerystac
 import { ArrowNode } from "scenerystack/scenery-phet";
 import type { PhasorChain } from "../../common/model/phasorChain.js";
 import DiffractionLabColors from "../../DiffractionLabColors.js";
-import { FONTS } from "../../DiffractionLabConstants.js";
+import { FONTS, PHASOR_DIAGRAM } from "../../DiffractionLabConstants.js";
 
 export type PhasorDiagramNodeOptions = {
   size: number;
   titleProperty: TReadOnlyProperty<string>;
   captionProperty: TReadOnlyProperty<string>;
 };
-
-/** Fraction of the half-size used by a straight chain. */
-const CHAIN_SCALE = 0.86;
 
 export class PhasorDiagramNode extends Node {
   private readonly shafts: Path;
@@ -38,7 +35,7 @@ export class PhasorDiagramNode extends Node {
   public constructor(chainProperty: TReadOnlyProperty<PhasorChain>, options: PhasorDiagramNodeOptions) {
     super();
     const size = options.size;
-    this.unitLength = (CHAIN_SCALE * size) / 2;
+    this.unitLength = (PHASOR_DIAGRAM.CHAIN_SCALE * size) / 2;
     this.originX = size / 2;
     this.originY = size / 2;
 
@@ -53,16 +50,19 @@ export class PhasorDiagramNode extends Node {
       x: this.originX,
       y: this.originY,
       stroke: DiffractionLabColors.chartAxisColorProperty,
-      lineDash: [4, 4],
+      lineDash: [...PHASOR_DIAGRAM.REFERENCE_DASH],
     });
-    this.shafts = new Path(null, { stroke: DiffractionLabColors.phasorColorProperty, lineWidth: 1.5 });
+    this.shafts = new Path(null, {
+      stroke: DiffractionLabColors.phasorColorProperty,
+      lineWidth: PHASOR_DIAGRAM.SHAFT_LINE_WIDTH,
+    });
     this.heads = new Path(null, { fill: DiffractionLabColors.phasorColorProperty });
     this.resultant = new ArrowNode(0, 0, 1, 0, {
       fill: DiffractionLabColors.resultantColorProperty,
       stroke: null,
-      headHeight: 12,
-      headWidth: 12,
-      tailWidth: 3,
+      headHeight: PHASOR_DIAGRAM.RESULTANT_HEAD_HEIGHT,
+      headWidth: PHASOR_DIAGRAM.RESULTANT_HEAD_WIDTH,
+      tailWidth: PHASOR_DIAGRAM.RESULTANT_TAIL_WIDTH,
     });
 
     const drawing = new Node({
@@ -81,7 +81,9 @@ export class PhasorDiagramNode extends Node {
       maxWidth: size,
     });
 
-    this.addChild(new VBox({ spacing: 4, align: "left", children: [title, drawing, caption] }));
+    this.addChild(
+      new VBox({ spacing: PHASOR_DIAGRAM.TITLE_SPACING, align: "left", children: [title, drawing, caption] }),
+    );
 
     chainProperty.link((chain) => this.update(chain));
   }
@@ -102,13 +104,13 @@ export class PhasorDiagramNode extends Node {
       const dx = to.x - from.x;
       const dy = to.y - from.y;
       const length = Math.hypot(dx, dy);
-      if (length < 0.5) {
+      if (length < PHASOR_DIAGRAM.MIN_SEGMENT_LENGTH) {
         continue;
       }
       const ux = dx / length;
       const uy = dy / length;
-      const headLength = Math.min(8, 0.4 * length);
-      const headHalfWidth = headLength * 0.45;
+      const headLength = Math.min(PHASOR_DIAGRAM.HEAD_LENGTH_CAP, PHASOR_DIAGRAM.HEAD_LENGTH_FRACTION * length);
+      const headHalfWidth = headLength * PHASOR_DIAGRAM.HEAD_HALF_WIDTH_FRACTION;
       const baseX = to.x - ux * headLength;
       const baseY = to.y - uy * headLength;
       shafts.moveTo(from.x, from.y).lineTo(baseX, baseY);
@@ -123,7 +125,7 @@ export class PhasorDiagramNode extends Node {
 
     const last = points[points.length - 1] ?? { x: this.originX, y: this.originY };
     const resultantLength = Math.hypot(last.x - this.originX, last.y - this.originY);
-    this.resultant.visible = resultantLength > 2;
+    this.resultant.visible = resultantLength > PHASOR_DIAGRAM.MIN_RESULTANT_LENGTH;
     if (this.resultant.visible) {
       this.resultant.setTailAndTip(this.originX, this.originY, last.x, last.y);
     }

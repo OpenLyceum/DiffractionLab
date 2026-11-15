@@ -27,7 +27,7 @@ import {
   type RectangularRadioButtonGroupItem,
 } from "scenerystack/sun";
 import DiffractionLabColors from "../../DiffractionLabColors.js";
-import { FONTS } from "../../DiffractionLabConstants.js";
+import { CONTROLS, FONTS } from "../../DiffractionLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import { diffractionLabPreferences } from "../../preferences/DiffractionLabPreferencesModel.js";
 import { FLAT_PANEL_PUSH_BUTTON_OPTIONS, LIGHT_SURFACE_TEXT_FILL } from "../DiffractionLabButtonOptions.js";
@@ -102,7 +102,7 @@ export function createNumberControl(
   range: Range,
   options: CreateNumberControlOptions = {},
 ): NumberControl {
-  const figures = options.significantFigures ?? 3;
+  const figures = options.significantFigures ?? CONTROLS.DEFAULT_SIGNIFICANT_FIGURES;
   const logarithmic = options.logarithmic ?? false;
   const units = StringManager.getInstance().getUnits();
 
@@ -110,7 +110,9 @@ export function createNumberControl(
     ? createLogarithmicProxy(numberProperty, range, figures, options.integer ?? false)
     : numberProperty;
   const controlledRange = logarithmic ? new Range(Math.log10(range.min), Math.log10(range.max)) : range;
-  const delta = options.delta ?? (logarithmic ? 0.02 : (range.max - range.min) / 100);
+  const delta =
+    options.delta ??
+    (logarithmic ? CONTROLS.LOG_DELTA_DEFAULT : (range.max - range.min) / CONTROLS.LINEAR_DELTA_FRACTION);
   const toValue = (controlled: number): number => (logarithmic ? range.constrainValue(10 ** controlled) : controlled);
 
   const unitsProperty = options.unitsProperty;
@@ -141,7 +143,11 @@ export function createNumberControl(
       {
         delta,
         accessibleName: options.accessibleName ?? titleProperty,
-        titleNodeOptions: { fill: DiffractionLabColors.textColorProperty, font: FONTS.LABEL, maxWidth: 140 },
+        titleNodeOptions: {
+          fill: DiffractionLabColors.textColorProperty,
+          font: FONTS.LABEL,
+          maxWidth: CONTROLS.TITLE_MAX_WIDTH,
+        },
         numberDisplayOptions: {
           useRichText: true,
           textOptions: { fill: DiffractionLabColors.controlSurfaceTextColorProperty, font: FONTS.LABEL },
@@ -150,7 +156,7 @@ export function createNumberControl(
           numberFormatterDependencies: unitsProperty
             ? [unitsProperty, units.valueUnitsPatternStringProperty]
             : [units.valueUnitsPatternStringProperty],
-          maxWidth: 100,
+          maxWidth: CONTROLS.DISPLAY_MAX_WIDTH,
         },
       },
       options.numberControlOptions,
@@ -166,13 +172,20 @@ export function createCheckbox(
 ): Checkbox {
   return new Checkbox(
     property,
-    new Text(labelProperty, { font: FONTS.LABEL, fill: DiffractionLabColors.textColorProperty, maxWidth: 190 }),
+    new Text(labelProperty, {
+      font: FONTS.LABEL,
+      fill: DiffractionLabColors.textColorProperty,
+      maxWidth: CONTROLS.CHECKBOX_LABEL_MAX_WIDTH,
+    }),
     combineOptions<CheckboxOptions>({ accessibleName: labelProperty }, DIFFRACTION_LAB_CHECKBOX_OPTIONS, options),
   );
 }
 
 /** Rich text visible only while the "Show equations" preference is on. */
-export function createEquationNode(equationProperty: TReadOnlyProperty<string>, maxWidth = 320): Node {
+export function createEquationNode(
+  equationProperty: TReadOnlyProperty<string>,
+  maxWidth: number = CONTROLS.EQUATION_MAX_WIDTH,
+): Node {
   return new RichText(equationProperty, {
     font: FONTS.READOUT,
     fill: DiffractionLabColors.accentColorProperty,
@@ -186,7 +199,7 @@ export function createReadout(textProperty: TReadOnlyProperty<string>, options?:
   return new RichText(
     textProperty,
     combineOptions<RichTextOptions>(
-      { font: FONTS.READOUT, fill: DiffractionLabColors.textColorProperty, maxWidth: 300 },
+      { font: FONTS.READOUT, fill: DiffractionLabColors.textColorProperty, maxWidth: CONTROLS.READOUT_MAX_WIDTH },
       options,
     ),
   );
@@ -196,15 +209,15 @@ export function createReadout(textProperty: TReadOnlyProperty<string>, options?:
 export function createTextButton(
   labelProperty: TReadOnlyProperty<string>,
   listener: () => void,
-  maxTextWidth = 140,
+  maxTextWidth: number = CONTROLS.BUTTON_TEXT_MAX_WIDTH,
 ): RectangularPushButton {
   return new RectangularPushButton({
     ...FLAT_PANEL_PUSH_BUTTON_OPTIONS,
     content: new Text(labelProperty, { font: FONTS.LABEL, fill: LIGHT_SURFACE_TEXT_FILL, maxWidth: maxTextWidth }),
     listener: listener,
     accessibleName: labelProperty,
-    xMargin: 8,
-    yMargin: 4,
+    xMargin: CONTROLS.BUTTON_X_MARGIN,
+    yMargin: CONTROLS.BUTTON_Y_MARGIN,
   });
 }
 
@@ -224,21 +237,25 @@ export function createRadioButtons<T>(
   const items: RectangularRadioButtonGroupItem<T>[] = choices.map((choice) => ({
     value: choice.value,
     createNode: () =>
-      new Text(choice.labelProperty, { font: FONTS.LABEL, fill: LIGHT_SURFACE_TEXT_FILL, maxWidth: 110 }),
+      new Text(choice.labelProperty, {
+        font: FONTS.LABEL,
+        fill: LIGHT_SURFACE_TEXT_FILL,
+        maxWidth: CONTROLS.RADIO_TEXT_MAX_WIDTH,
+      }),
     options: { accessibleName: choice.labelProperty },
   }));
   const group = new RectangularRadioButtonGroup(property, items, {
     orientation: "horizontal",
-    spacing: 6,
+    spacing: CONTROLS.RADIO_SPACING,
     accessibleName: accessibleNameProperty,
     radioButtonOptions: {
       baseColor: DiffractionLabColors.controlSurfaceColorProperty,
-      xMargin: 8,
-      yMargin: 4,
+      xMargin: CONTROLS.BUTTON_X_MARGIN,
+      yMargin: CONTROLS.BUTTON_Y_MARGIN,
       buttonAppearanceStrategyOptions: {
         selectedStroke: DiffractionLabColors.accentColorProperty,
-        selectedLineWidth: 3,
-        deselectedButtonOpacity: 0.85,
+        selectedLineWidth: CONTROLS.RADIO_SELECTED_LINE_WIDTH,
+        deselectedButtonOpacity: CONTROLS.RADIO_DESELECTED_OPACITY,
       },
       contentAppearanceStrategyOptions: {
         deselectedContentOpacity: 1,

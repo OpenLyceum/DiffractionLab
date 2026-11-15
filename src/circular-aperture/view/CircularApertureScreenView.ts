@@ -41,6 +41,7 @@ import {
   AIRY_CHART_SAMPLES,
   AIRY_IMAGE_SAMPLES,
   APERTURE_DIAMETER_RANGE_M,
+  APERTURE_LAYOUT,
   FONTS,
   SCREEN_VIEW_MARGIN,
   SEEING_FWHM_ARCSEC,
@@ -53,21 +54,6 @@ import { CircularApertureScreenSummaryContent } from "./CircularApertureScreenSu
 import { formatDiameter } from "./formatDiameter.js";
 
 export type CircularApertureScreenViewOptions = ScreenViewOptions;
-
-const IMAGE_LEFT = 40;
-const IMAGE_TOP = 40;
-const IMAGE_SIZE = 250;
-
-const CHART_LEFT = 70;
-const CHART_TOP = 350;
-const CHART_WIDTH = 610;
-const CHART_HEIGHT = 175;
-
-/** Display exponent for "Boost faint rings": lifts the 1.75 % first ring to about 13 % brightness. */
-const BOOST_EXPONENT = 0.5;
-
-/** Extra chart samples packed around each source so a sharp Airy peak is never missed. */
-const PEAK_SAMPLES = 60;
 
 export class CircularApertureScreenView extends ScreenView {
   public constructor(model: CircularApertureModel, providedOptions?: CircularApertureScreenViewOptions) {
@@ -89,9 +75,12 @@ export class CircularApertureScreenView extends ScreenView {
       () => {
         const rayleigh = model.rayleighAngleProperty.value;
         const half = model.separationProperty.value / 2;
-        let field = Math.max(2.5 * rayleigh, half + 2 * rayleigh);
+        let field = Math.max(
+          APERTURE_LAYOUT.FIELD_RAYLEIGH_FACTOR * rayleigh,
+          half + APERTURE_LAYOUT.FIELD_MARGIN_RAYLEIGH * rayleigh,
+        );
         if (model.seeingProperty.value) {
-          field = Math.max(field, half + 2.5 * SEEING_FWHM_ARCSEC);
+          field = Math.max(field, half + APERTURE_LAYOUT.FIELD_SEEING_MARGIN * SEEING_FWHM_ARCSEC);
         }
         return field;
       },
@@ -99,22 +88,28 @@ export class CircularApertureScreenView extends ScreenView {
 
     // ── Image ───────────────────────────────────────────────────────────────────
     const image = new IntensityImageNode({
-      width: IMAGE_SIZE,
-      height: IMAGE_SIZE,
+      width: APERTURE_LAYOUT.IMAGE_SIZE,
+      height: APERTURE_LAYOUT.IMAGE_SIZE,
       columns: AIRY_IMAGE_SAMPLES,
       rows: AIRY_IMAGE_SAMPLES,
-      x: IMAGE_LEFT,
-      y: IMAGE_TOP,
+      x: APERTURE_LAYOUT.IMAGE_LEFT,
+      y: APERTURE_LAYOUT.IMAGE_TOP,
     });
-    const imageFrame = new Rectangle(IMAGE_LEFT, IMAGE_TOP, IMAGE_SIZE, IMAGE_SIZE, {
-      stroke: DiffractionLabColors.chartAxisColorProperty,
-    });
+    const imageFrame = new Rectangle(
+      APERTURE_LAYOUT.IMAGE_LEFT,
+      APERTURE_LAYOUT.IMAGE_TOP,
+      APERTURE_LAYOUT.IMAGE_SIZE,
+      APERTURE_LAYOUT.IMAGE_SIZE,
+      {
+        stroke: DiffractionLabColors.chartAxisColorProperty,
+      },
+    );
     const imageTitle = new Text(strings.imageTitleStringProperty, {
       font: FONTS.LABEL,
       fill: DiffractionLabColors.textColorProperty,
-      maxWidth: IMAGE_SIZE,
-      left: IMAGE_LEFT,
-      bottom: IMAGE_TOP - 6,
+      maxWidth: APERTURE_LAYOUT.IMAGE_SIZE,
+      left: APERTURE_LAYOUT.IMAGE_LEFT,
+      bottom: APERTURE_LAYOUT.IMAGE_TOP - APERTURE_LAYOUT.IMAGE_TITLE_GAP,
     });
     const fieldText = createReadout(
       DerivedProperty.deriveAny([halfFieldProperty, strings.fieldOfViewStringProperty], () =>
@@ -122,52 +117,52 @@ export class CircularApertureScreenView extends ScreenView {
           value: formatSignificant(2 * halfFieldProperty.value, 3),
         }),
       ),
-      { font: FONTS.SMALL, maxWidth: IMAGE_SIZE },
+      { font: FONTS.SMALL, maxWidth: APERTURE_LAYOUT.IMAGE_SIZE },
     );
     fieldText.boundsProperty.link(() => {
-      fieldText.centerX = IMAGE_LEFT + IMAGE_SIZE / 2;
-      fieldText.top = IMAGE_TOP + IMAGE_SIZE + 4;
+      fieldText.centerX = APERTURE_LAYOUT.IMAGE_LEFT + APERTURE_LAYOUT.IMAGE_SIZE / 2;
+      fieldText.top = APERTURE_LAYOUT.IMAGE_TOP + APERTURE_LAYOUT.IMAGE_SIZE + APERTURE_LAYOUT.FIELD_TEXT_GAP;
     });
 
     // ── Chart ───────────────────────────────────────────────────────────────────
     const chart = new ChartFrameNode({
-      viewWidth: CHART_WIDTH,
-      viewHeight: CHART_HEIGHT,
+      viewWidth: APERTURE_LAYOUT.CHART_WIDTH,
+      viewHeight: APERTURE_LAYOUT.CHART_HEIGHT,
       xRange: new Range(-1, 1),
-      yRange: new Range(0, 1.1),
+      yRange: new Range(0, APERTURE_LAYOUT.Y_MAX_FACTOR),
       xAxisLabelProperty: strings.angleAxisStringProperty,
       yAxisLabelProperty: strings.intensityAxisStringProperty,
-      nodeOptions: { x: CHART_LEFT, y: CHART_TOP },
+      nodeOptions: { x: APERTURE_LAYOUT.CHART_LEFT, y: APERTURE_LAYOUT.CHART_TOP },
     });
     const transform = chart.chartTransform;
     const firstPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.firstLineColorProperty,
-      lineWidth: 1.2,
-      lineDash: [5, 4],
+      lineWidth: APERTURE_LAYOUT.PROFILE_LINE_WIDTH,
+      lineDash: [...APERTURE_LAYOUT.PROFILE_DASH],
     });
     const secondPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.secondLineColorProperty,
-      lineWidth: 1.2,
-      lineDash: [5, 4],
+      lineWidth: APERTURE_LAYOUT.PROFILE_LINE_WIDTH,
+      lineDash: [...APERTURE_LAYOUT.PROFILE_DASH],
     });
     const slitPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.envelopeCurveColorProperty,
-      lineWidth: 1.5,
+      lineWidth: APERTURE_LAYOUT.SLIT_LINE_WIDTH,
       visibleProperty: model.compareSlitProperty,
     });
     const sumPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.intensityCurveColorProperty,
-      lineWidth: 2,
+      lineWidth: APERTURE_LAYOUT.SUM_LINE_WIDTH,
     });
     chart.plotLayer.children = [firstPlot, secondPlot, slitPlot, sumPlot];
 
     const slitLegend = new Text(strings.slitCurveStringProperty, {
       font: FONTS.SMALL,
       fill: DiffractionLabColors.envelopeCurveColorProperty,
-      maxWidth: 220,
+      maxWidth: APERTURE_LAYOUT.SLIT_LEGEND_MAX_WIDTH,
       visibleProperty: model.compareSlitProperty,
-      right: CHART_WIDTH - 6,
-      top: 4,
+      right: APERTURE_LAYOUT.CHART_WIDTH - APERTURE_LAYOUT.SLIT_LEGEND_INSET,
+      top: APERTURE_LAYOUT.SLIT_LEGEND_INSET,
     });
     chart.overlayLayer.addChild(slitLegend);
 
@@ -221,17 +216,17 @@ export class CircularApertureScreenView extends ScreenView {
             : DiffractionLabColors.markerColorProperty;
     });
     const readouts = new VBox({
-      spacing: 10,
+      spacing: APERTURE_LAYOUT.READOUTS_SPACING,
       align: "left",
       children: [
         createReadout(rayleighReadoutProperty),
         createReadout(ratioReadoutProperty),
         createReadout(dipReadoutProperty),
         verdictText,
-        createEquationNode(strings.equationStringProperty, 300),
+        createEquationNode(strings.equationStringProperty, APERTURE_LAYOUT.EQUATION_MAX_WIDTH),
       ],
-      left: IMAGE_LEFT + IMAGE_SIZE + 36,
-      top: IMAGE_TOP + 20,
+      left: APERTURE_LAYOUT.IMAGE_LEFT + APERTURE_LAYOUT.IMAGE_SIZE + APERTURE_LAYOUT.READOUTS_GAP,
+      top: APERTURE_LAYOUT.IMAGE_TOP + APERTURE_LAYOUT.READOUTS_TOP_INSET,
     });
 
     // ── Controls ────────────────────────────────────────────────────────────────
@@ -241,7 +236,7 @@ export class CircularApertureScreenView extends ScreenView {
       ground: strings.groundStringProperty,
     } as const;
     const presetButtons = APERTURE_PRESETS.map((preset) =>
-      createTextButton(presetLabels[preset.id], () => model.applyPreset(preset), 110),
+      createTextButton(presetLabels[preset.id], () => model.applyPreset(preset), APERTURE_LAYOUT.PRESET_BUTTON_WIDTH),
     );
     const diameterControl = createNumberControl(
       strings.diameterStringProperty,
@@ -267,18 +262,21 @@ export class CircularApertureScreenView extends ScreenView {
 
     const controlsPanel = new DiffractionLabPanel(
       new VBox({
-        spacing: 10,
+        spacing: APERTURE_LAYOUT.CONTROLS_SPACING,
         align: "left",
         children: [
           new Text(strings.presetsStringProperty, {
             font: FONTS.LABEL,
             fill: DiffractionLabColors.textColorProperty,
-            maxWidth: 240,
+            maxWidth: APERTURE_LAYOUT.PRESETS_TITLE_MAX_WIDTH,
           }),
           new VBox({
-            spacing: 6,
+            spacing: APERTURE_LAYOUT.PRESET_ROW_SPACING,
             align: "left",
-            children: [new HBox({ spacing: 6, children: presetButtons.slice(0, 2) }), presetButtons[2] ?? new Node()],
+            children: [
+              new HBox({ spacing: APERTURE_LAYOUT.PRESET_ROW_SPACING, children: presetButtons.slice(0, 2) }),
+              presetButtons[2] ?? new Node(),
+            ],
           }),
           diameterControl,
           wavelengthControl,
@@ -327,7 +325,7 @@ export class CircularApertureScreenView extends ScreenView {
         image.update(
           lightRgb(model.wavelengthProperty.value),
           peak > 0 ? 1 / peak : 1,
-          model.boostRingsProperty.value ? BOOST_EXPONENT : 1,
+          model.boostRingsProperty.value ? APERTURE_LAYOUT.BOOST_EXPONENT : 1,
         );
 
         // Chart, in arcseconds, with extra samples around each source.
@@ -336,8 +334,12 @@ export class CircularApertureScreenView extends ScreenView {
           xs.push(-field + (2 * field * i) / (AIRY_CHART_SAMPLES - 1));
         }
         for (const centre of [-half, half]) {
-          for (let i = 0; i < PEAK_SAMPLES; i++) {
-            xs.push(centre - 2 + (4 * i) / (PEAK_SAMPLES - 1));
+          for (let i = 0; i < APERTURE_LAYOUT.PEAK_SAMPLES; i++) {
+            xs.push(
+              centre -
+                APERTURE_LAYOUT.PEAK_HALF_WIDTH +
+                (2 * APERTURE_LAYOUT.PEAK_HALF_WIDTH * i) / (APERTURE_LAYOUT.PEAK_SAMPLES - 1),
+            );
           }
         }
         xs.sort((a, b) => a - b);
@@ -366,7 +368,10 @@ export class CircularApertureScreenView extends ScreenView {
           );
           top = Math.max(top, i1 + i2);
         }
-        chart.setRanges(new Range(-halfFieldProperty.value, halfFieldProperty.value), new Range(0, 1.1 * top));
+        chart.setRanges(
+          new Range(-halfFieldProperty.value, halfFieldProperty.value),
+          new Range(0, APERTURE_LAYOUT.Y_MAX_FACTOR * top),
+        );
         firstPlot.setDataSet(first);
         secondPlot.setDataSet(second);
         slitPlot.setDataSet(slit);
@@ -380,10 +385,16 @@ export class CircularApertureScreenView extends ScreenView {
     Multilink.multilink([model.separationProperty, halfFieldProperty], (separation) => {
       sourceTicks.children = [-separation / 2, separation / 2].map((x) => {
         const viewX = transform.modelToViewX(x);
-        return new Line(viewX, CHART_HEIGHT - 8, viewX, CHART_HEIGHT, {
-          stroke: DiffractionLabColors.cursorColorProperty,
-          lineWidth: 2,
-        });
+        return new Line(
+          viewX,
+          APERTURE_LAYOUT.CHART_HEIGHT - APERTURE_LAYOUT.SOURCE_TICK_HEIGHT,
+          viewX,
+          APERTURE_LAYOUT.CHART_HEIGHT,
+          {
+            stroke: DiffractionLabColors.cursorColorProperty,
+            lineWidth: APERTURE_LAYOUT.SOURCE_TICK_LINE_WIDTH,
+          },
+        );
       });
     });
 

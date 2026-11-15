@@ -15,9 +15,11 @@ import { centralDipFraction, rayleighAngle } from "../../common/model/airy.js";
 import {
   APERTURE_DIAMETER_DEFAULT_M,
   APERTURE_DIAMETER_RANGE_M,
+  APERTURE_PRESET_VALUES,
   APERTURE_WAVELENGTH_DEFAULT_NM,
   ARCSEC_PER_RADIAN,
   RAYLEIGH_TOLERANCE,
+  SEEING_DIP_RESOLVED,
   SEEING_FWHM_ARCSEC,
   SOURCE_SEPARATION_DEFAULT_ARCSEC,
   SOURCE_SEPARATION_RANGE_ARCSEC,
@@ -39,9 +41,27 @@ export type AperturePreset = {
  * the sources a little beyond its diffraction limit.
  */
 export const APERTURE_PRESETS: readonly AperturePreset[] = [
-  { id: "eye", diameterM: 4e-3, wavelengthNm: 550, separationArcsec: 60, seeing: false },
-  { id: "hubble", diameterM: 2.4, wavelengthNm: 550, separationArcsec: 0.1, seeing: false },
-  { id: "ground", diameterM: 2.4, wavelengthNm: 550, separationArcsec: 0.1, seeing: true },
+  {
+    id: "eye",
+    diameterM: APERTURE_PRESET_VALUES.EYE_DIAMETER_M,
+    wavelengthNm: APERTURE_PRESET_VALUES.WAVELENGTH_NM,
+    separationArcsec: APERTURE_PRESET_VALUES.EYE_SEPARATION_ARCSEC,
+    seeing: false,
+  },
+  {
+    id: "hubble",
+    diameterM: APERTURE_PRESET_VALUES.HUBBLE_DIAMETER_M,
+    wavelengthNm: APERTURE_PRESET_VALUES.WAVELENGTH_NM,
+    separationArcsec: APERTURE_PRESET_VALUES.HUBBLE_SEPARATION_ARCSEC,
+    seeing: false,
+  },
+  {
+    id: "ground",
+    diameterM: APERTURE_PRESET_VALUES.HUBBLE_DIAMETER_M,
+    wavelengthNm: APERTURE_PRESET_VALUES.WAVELENGTH_NM,
+    separationArcsec: APERTURE_PRESET_VALUES.HUBBLE_SEPARATION_ARCSEC,
+    seeing: true,
+  },
 ];
 
 export type ApertureVerdict = "resolved" | "justResolved" | "unresolved";
@@ -96,7 +116,7 @@ export class CircularApertureModel implements TModel {
       (ratio, dip, seeing): ApertureVerdict => {
         if (seeing) {
           // Under seeing there is no Airy ring to land on: judge by the dip alone.
-          return dip > 0.05 ? "resolved" : "unresolved";
+          return dip > SEEING_DIP_RESOLVED ? "resolved" : "unresolved";
         }
         if (Math.abs(ratio - 1) <= RAYLEIGH_TOLERANCE) {
           return "justResolved";

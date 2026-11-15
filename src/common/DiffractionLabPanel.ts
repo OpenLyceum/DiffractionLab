@@ -29,7 +29,7 @@ import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { Node } from "scenerystack/scenery";
 import { Panel, type PanelOptions } from "scenerystack/sun";
 import DiffractionLabColors from "../DiffractionLabColors.js";
-import { PANEL_CORNER_RADIUS } from "../DiffractionLabConstants.js";
+import { PANEL, PANEL_CORNER_RADIUS } from "../DiffractionLabConstants.js";
 
 export type DiffractionLabPanelOptions = PanelOptions;
 
@@ -40,8 +40,8 @@ export class DiffractionLabPanel extends Panel {
         fill: DiffractionLabColors.panelBackgroundColorProperty,
         stroke: DiffractionLabColors.panelBorderColorProperty,
         cornerRadius: PANEL_CORNER_RADIUS,
-        xMargin: 12,
-        yMargin: 10,
+        xMargin: PANEL.X_MARGIN,
+        yMargin: PANEL.Y_MARGIN,
       },
       providedOptions,
     );

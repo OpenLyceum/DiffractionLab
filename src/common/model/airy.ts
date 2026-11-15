@@ -10,6 +10,13 @@
  * First dark ring at u = 3.8317…, i.e. sin θ = 1.2197 λ/D.
  */
 
+import {
+  AIRY_GAUSSIAN_SIGMA_OVER_LAMBDA_OVER_D,
+  GAUSSIAN_FWHM_PER_SIGMA,
+  NEAR_ZERO_AIRY,
+  NEAR_ZERO_SINC,
+} from "../../DiffractionLabConstants.js";
+
 /** First zero of J₁. */
 export const J1_FIRST_ZERO = 3.831705970207512;
 
@@ -47,7 +54,7 @@ export function besselJ1(x: number): number {
 
 /** Airy amplitude 2J₁(u)/u, equal to 1 at u = 0. */
 export function airyAmplitude(u: number): number {
-  if (Math.abs(u) < 1e-4) {
+  if (Math.abs(u) < NEAR_ZERO_AIRY) {
     return 1 - (u * u) / 8;
   }
   return (2 * besselJ1(u)) / u;
@@ -75,7 +82,7 @@ export function airyIntensityInRayleighUnits(r: number): number {
 /** Single-slit intensity sinc²(π a sinθ/λ) with r in units of λ/a (first zero at r = 1). */
 export function slitIntensityInSlitUnits(r: number): number {
   const x = Math.PI * r;
-  if (Math.abs(x) < 1e-6) {
+  if (Math.abs(x) < NEAR_ZERO_SINC) {
     return 1;
   }
   const s = Math.sin(x) / x;
@@ -83,10 +90,7 @@ export function slitIntensityInSlitUnits(r: number): number {
 }
 
 /** Ratio of the Gaussian σ to the Rayleigh angle for the best-fit Gaussian to the Airy core. */
-const AIRY_GAUSSIAN_SIGMA_IN_RAYLEIGH = 0.42 / RAYLEIGH_FACTOR;
-
-/** FWHM / σ for a Gaussian. */
-const FWHM_PER_SIGMA = 2 * Math.sqrt(2 * Math.LN2);
+const AIRY_GAUSSIAN_SIGMA_IN_RAYLEIGH = AIRY_GAUSSIAN_SIGMA_OVER_LAMBDA_OVER_D / RAYLEIGH_FACTOR;
 
 /**
  * A point-spread function of angular radius r, in units of the Rayleigh angle.
@@ -100,7 +104,7 @@ export function pointSpreadFunction(r: number, seeingFwhmInRayleigh: number): nu
   if (seeingFwhmInRayleigh <= 0) {
     return airyIntensityInRayleighUnits(r);
   }
-  const sigmaSeeing = seeingFwhmInRayleigh / FWHM_PER_SIGMA;
+  const sigmaSeeing = seeingFwhmInRayleigh / GAUSSIAN_FWHM_PER_SIGMA;
   const sigma2 = sigmaSeeing * sigmaSeeing + AIRY_GAUSSIAN_SIGMA_IN_RAYLEIGH * AIRY_GAUSSIAN_SIGMA_IN_RAYLEIGH;
   return Math.exp((-r * r) / (2 * sigma2));
 }

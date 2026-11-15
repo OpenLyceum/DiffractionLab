@@ -16,6 +16,7 @@ import type { TModel } from "scenerystack/joist";
 import { TimeModel } from "../../common/TimeModel.js";
 import {
   GRATINGS_AXIS_ENVELOPE_ZEROS,
+  GRATINGS_CURSOR_ORDER_FRACTION,
   GRATINGS_WAVELENGTH_DEFAULT_NM,
   PHASE_SWEEP_PERIOD,
   SLIT_COUNT_DEFAULT,
@@ -93,9 +94,9 @@ export class GratingsModel implements TModel {
     return this.wavelengthProperty.value / 1000;
   }
 
-  /** The default cursor: 15 % of the way to the first order, where the chain is partly curled. */
+  /** The default cursor: a fraction of the way to the first order, where the chain is partly curled. */
   private initialCursor(): number {
-    return (0.15 * GRATINGS_WAVELENGTH_DEFAULT_NM) / 1000 / SLIT_SPACING_DEFAULT_UM;
+    return (GRATINGS_CURSOR_ORDER_FRACTION * GRATINGS_WAVELENGTH_DEFAULT_NM) / 1000 / SLIT_SPACING_DEFAULT_UM;
   }
 
   public reset(): void {

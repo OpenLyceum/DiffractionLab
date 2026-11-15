@@ -17,12 +17,11 @@
  * and the normalized intensity is 1 at θ = 0. See doc/model.md.
  */
 
-/** Tolerance used to decide that a ratio is an integer (missing orders, grazing orders). */
-const INTEGER_TOLERANCE = 1e-9;
+import { INTEGER_TOLERANCE, NEAR_ZERO_SINC } from "../../DiffractionLabConstants.js";
 
 /** sin(x)/x, with its Taylor series near zero. */
 export function sinc(x: number): number {
-  if (Math.abs(x) < 1e-6) {
+  if (Math.abs(x) < NEAR_ZERO_SINC) {
     return 1 - (x * x) / 6;
   }
   return Math.sin(x) / x;

@@ -36,6 +36,8 @@ import DiffractionLabColors from "../../DiffractionLabColors.js";
 import {
   FONTS,
   GRATINGS_CHART_SAMPLES,
+  GRATINGS_LAYOUT,
+  GRATINGS_MISSING_ORDER_CAP,
   SCREEN_VIEW_MARGIN,
   SLIT_COUNT_RANGE,
   SLIT_SPACING_RANGE_UM,
@@ -48,14 +50,6 @@ import { GratingsScreenSummaryContent, missingOrdersText } from "./GratingsScree
 import { PhasorDiagramNode } from "./PhasorDiagramNode.js";
 
 export type GratingsScreenViewOptions = ScreenViewOptions;
-
-const CHART_LEFT = 70;
-const CHART_TOP = 24;
-const CHART_WIDTH = 580;
-const CHART_HEIGHT = 290;
-const STRIP_HEIGHT = 34;
-const STRIP_COLUMNS = 800;
-const PHASOR_SIZE = 250;
 
 export class GratingsScreenView extends ScreenView {
   public constructor(model: GratingsModel, providedOptions?: GratingsScreenViewOptions) {
@@ -78,62 +72,78 @@ export class GratingsScreenView extends ScreenView {
       (scaled, normalized, n2) => (scaled ? n2 : normalized),
     );
     const chart = new ChartFrameNode({
-      viewWidth: CHART_WIDTH,
-      viewHeight: CHART_HEIGHT,
+      viewWidth: GRATINGS_LAYOUT.CHART_WIDTH,
+      viewHeight: GRATINGS_LAYOUT.CHART_HEIGHT,
       xRange: model.axisRangeProperty.value,
-      yRange: new Range(0, 1.1),
+      yRange: new Range(0, GRATINGS_LAYOUT.Y_MAX_FACTOR),
       xAxisLabelProperty: strings.sinThetaAxisStringProperty,
       yAxisLabelProperty: yAxisLabelProperty,
-      nodeOptions: { x: CHART_LEFT, y: CHART_TOP },
+      nodeOptions: { x: GRATINGS_LAYOUT.CHART_LEFT, y: GRATINGS_LAYOUT.CHART_TOP },
     });
     const transform = chart.chartTransform;
     const intensityPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.intensityCurveColorProperty,
-      lineWidth: 1.5,
+      lineWidth: GRATINGS_LAYOUT.INTENSITY_LINE_WIDTH,
     });
     const envelopePlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.envelopeCurveColorProperty,
-      lineWidth: 1.2,
-      lineDash: [5, 4],
+      lineWidth: GRATINGS_LAYOUT.ENVELOPE_LINE_WIDTH,
+      lineDash: [...GRATINGS_LAYOUT.ENVELOPE_DASH],
       visibleProperty: model.showEnvelopeProperty,
     });
     chart.plotLayer.addChild(envelopePlot);
     chart.plotLayer.addChild(intensityPlot);
 
-    const missingMarks = new Path(null, { stroke: DiffractionLabColors.markerColorProperty, lineWidth: 2 });
+    const missingMarks = new Path(null, {
+      stroke: DiffractionLabColors.markerColorProperty,
+      lineWidth: GRATINGS_LAYOUT.MISSING_MARK_LINE_WIDTH,
+    });
     chart.overlayLayer.addChild(missingMarks);
 
     // ── Screen strip ────────────────────────────────────────────────────────────
     const strip = new IntensityImageNode({
-      width: CHART_WIDTH,
-      height: STRIP_HEIGHT,
-      columns: STRIP_COLUMNS,
+      width: GRATINGS_LAYOUT.CHART_WIDTH,
+      height: GRATINGS_LAYOUT.STRIP_HEIGHT,
+      columns: GRATINGS_LAYOUT.STRIP_COLUMNS,
       rows: 1,
-      x: CHART_LEFT,
-      y: CHART_TOP + CHART_HEIGHT + 46,
+      x: GRATINGS_LAYOUT.CHART_LEFT,
+      y: GRATINGS_LAYOUT.CHART_TOP + GRATINGS_LAYOUT.CHART_HEIGHT + GRATINGS_LAYOUT.STRIP_GAP,
     });
-    const stripFrame = new Rectangle(strip.x, strip.y, CHART_WIDTH, STRIP_HEIGHT, {
+    const stripFrame = new Rectangle(strip.x, strip.y, GRATINGS_LAYOUT.CHART_WIDTH, GRATINGS_LAYOUT.STRIP_HEIGHT, {
       stroke: DiffractionLabColors.chartAxisColorProperty,
     });
     const stripLabel = new Text(strings.screenStringProperty, {
       font: FONTS.SMALL,
       fill: DiffractionLabColors.textColorProperty,
-      maxWidth: CHART_LEFT - 10,
+      maxWidth: GRATINGS_LAYOUT.CHART_LEFT - GRATINGS_LAYOUT.STRIP_LABEL_MAX_INSET,
     });
     stripLabel.boundsProperty.link(() => {
-      stripLabel.right = CHART_LEFT - 6;
-      stripLabel.centerY = strip.y + STRIP_HEIGHT / 2;
+      stripLabel.right = GRATINGS_LAYOUT.CHART_LEFT - GRATINGS_LAYOUT.STRIP_LABEL_GAP;
+      stripLabel.centerY = strip.y + GRATINGS_LAYOUT.STRIP_HEIGHT / 2;
     });
 
     // ── Cursor ──────────────────────────────────────────────────────────────────
-    const cursorLine = new Path(new Shape().moveTo(0, 0).lineTo(0, CHART_HEIGHT), {
+    const cursorLine = new Path(new Shape().moveTo(0, 0).lineTo(0, GRATINGS_LAYOUT.CHART_HEIGHT), {
       stroke: DiffractionLabColors.cursorColorProperty,
-      lineWidth: 1.5,
+      lineWidth: GRATINGS_LAYOUT.CURSOR_LINE_WIDTH,
     });
-    const cursorHandle = new Path(new Shape().moveTo(-8, -14).lineTo(8, -14).lineTo(0, -2).close(), {
-      fill: DiffractionLabColors.cursorColorProperty,
-    });
-    const cursorHitArea = new Rectangle(-10, -16, 20, CHART_HEIGHT + 16, { fill: "transparent" });
+    const cursorHandle = new Path(
+      new Shape()
+        .moveTo(-GRATINGS_LAYOUT.CURSOR_HANDLE.HALF_WIDTH, GRATINGS_LAYOUT.CURSOR_HANDLE.TOP)
+        .lineTo(GRATINGS_LAYOUT.CURSOR_HANDLE.HALF_WIDTH, GRATINGS_LAYOUT.CURSOR_HANDLE.TOP)
+        .lineTo(0, GRATINGS_LAYOUT.CURSOR_HANDLE.TIP)
+        .close(),
+      {
+        fill: DiffractionLabColors.cursorColorProperty,
+      },
+    );
+    const cursorHitArea = new Rectangle(
+      -GRATINGS_LAYOUT.CURSOR_HIT.HALF_WIDTH,
+      GRATINGS_LAYOUT.CURSOR_HIT.TOP,
+      2 * GRATINGS_LAYOUT.CURSOR_HIT.HALF_WIDTH,
+      GRATINGS_LAYOUT.CHART_HEIGHT + GRATINGS_LAYOUT.CURSOR_HIT.EXTRA_HEIGHT,
+      { fill: "transparent" },
+    );
     const cursor = new Node({
       children: [cursorHitArea, cursorLine, cursorHandle],
       cursor: "ew-resize",
@@ -155,13 +165,16 @@ export class GratingsScreenView extends ScreenView {
     cursor.addInputListener(
       new KeyboardDragListener({
         keyboardDragDirection: "leftRight",
-        dragSpeed: 120,
-        shiftDragSpeed: 20,
+        dragSpeed: GRATINGS_LAYOUT.DRAG_SPEED,
+        shiftDragSpeed: GRATINGS_LAYOUT.SHIFT_DRAG_SPEED,
         drag: (_event, listener) => setCursorFromViewX(cursor.x + listener.modelDelta.x),
       }),
     );
     // Clicking anywhere on the plot moves the cursor there.
-    const plotHitArea = new Rectangle(0, 0, CHART_WIDTH, CHART_HEIGHT, { fill: "transparent", cursor: "pointer" });
+    const plotHitArea = new Rectangle(0, 0, GRATINGS_LAYOUT.CHART_WIDTH, GRATINGS_LAYOUT.CHART_HEIGHT, {
+      fill: "transparent",
+      cursor: "pointer",
+    });
     plotHitArea.addInputListener(
       new DragListener({
         press: (event) => setCursorFromViewX(chart.globalToLocalPoint(event.pointer.point).x),
@@ -189,7 +202,7 @@ export class GratingsScreenView extends ScreenView {
         ),
     );
     const phasorDiagram = new PhasorDiagramNode(chainProperty, {
-      size: PHASOR_SIZE,
+      size: GRATINGS_LAYOUT.PHASOR_SIZE,
       titleProperty: strings.phasorTitleStringProperty,
       captionProperty: strings.phasorCaptionStringProperty,
     });
@@ -227,11 +240,11 @@ export class GratingsScreenView extends ScreenView {
     );
 
     const sweepButton = new PlayPauseButton(model.timer.isPlayingProperty, {
-      radius: 16,
+      radius: GRATINGS_LAYOUT.SWEEP_BUTTON_RADIUS,
       accessibleName: a11y.controls.sweepStringProperty,
     });
     const sweepRow = new HBox({
-      spacing: 8,
+      spacing: GRATINGS_LAYOUT.RIGHT_COLUMN_SPACING,
       children: [
         sweepButton,
         new Text(strings.sweepStringProperty, { font: FONTS.LABEL, fill: DiffractionLabColors.textColorProperty }),
@@ -240,10 +253,10 @@ export class GratingsScreenView extends ScreenView {
 
     const rightColumn = new VBox({
       align: "left",
-      spacing: 8,
+      spacing: GRATINGS_LAYOUT.RIGHT_COLUMN_SPACING,
       children: [phasorDiagram, createReadout(phiReadoutProperty), createReadout(intensityReadoutProperty), sweepRow],
-      left: CHART_LEFT + CHART_WIDTH + 40,
-      top: CHART_TOP - 6,
+      left: GRATINGS_LAYOUT.CHART_LEFT + GRATINGS_LAYOUT.CHART_WIDTH + GRATINGS_LAYOUT.RIGHT_COLUMN_GAP,
+      top: GRATINGS_LAYOUT.CHART_TOP - GRATINGS_LAYOUT.RIGHT_COLUMN_TOP_INSET,
     });
 
     // ── Controls ────────────────────────────────────────────────────────────────
@@ -289,19 +302,19 @@ export class GratingsScreenView extends ScreenView {
 
     const controlsPanel = new DiffractionLabPanel(
       new HBox({
-        spacing: 22,
+        spacing: GRATINGS_LAYOUT.CONTROLS_COLUMN_SPACING,
         align: "top",
         children: [
-          new VBox({ spacing: 10, children: [slitCountControl, wavelengthControl] }),
-          new VBox({ spacing: 10, children: [spacingControl, widthControl] }),
+          new VBox({ spacing: GRATINGS_LAYOUT.CONTROLS_ROW_SPACING, children: [slitCountControl, wavelengthControl] }),
+          new VBox({ spacing: GRATINGS_LAYOUT.CONTROLS_ROW_SPACING, children: [spacingControl, widthControl] }),
           new VBox({
-            spacing: 10,
+            spacing: GRATINGS_LAYOUT.CONTROLS_ROW_SPACING,
             align: "left",
             children: [
               envelopeCheckbox,
               scaleCheckbox,
-              createReadout(missingReadoutProperty, { maxWidth: 200, font: FONTS.SMALL }),
-              createReadout(fringesReadoutProperty, { maxWidth: 200, font: FONTS.SMALL }),
+              createReadout(missingReadoutProperty, { maxWidth: GRATINGS_LAYOUT.READOUT_MAX_WIDTH, font: FONTS.SMALL }),
+              createReadout(fringesReadoutProperty, { maxWidth: GRATINGS_LAYOUT.READOUT_MAX_WIDTH, font: FONTS.SMALL }),
             ],
           }),
         ],
@@ -309,10 +322,10 @@ export class GratingsScreenView extends ScreenView {
       { left: SCREEN_VIEW_MARGIN, bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN },
     );
 
-    const equation = createEquationNode(strings.equationStringProperty, 300);
+    const equation = createEquationNode(strings.equationStringProperty, GRATINGS_LAYOUT.EQUATION_MAX_WIDTH);
     equation.boundsProperty.link(() => {
       equation.left = rightColumn.left;
-      equation.top = rightColumn.bottom + 12;
+      equation.top = rightColumn.bottom + GRATINGS_LAYOUT.EQUATION_GAP;
     });
 
     // ── Updates ─────────────────────────────────────────────────────────────────
@@ -334,7 +347,7 @@ export class GratingsScreenView extends ScreenView {
         const lambda = model.wavelengthUm;
         const range = model.axisRangeProperty.value;
         const scale = model.scaleByNSquaredProperty.value ? n * n : 1;
-        chart.setRanges(range, new Range(0, 1.1 * scale));
+        chart.setRanges(range, new Range(0, GRATINGS_LAYOUT.Y_MAX_FACTOR * scale));
 
         curve.length = 0;
         envelope.length = 0;
@@ -347,21 +360,31 @@ export class GratingsScreenView extends ScreenView {
         envelopePlot.setDataSet(envelope);
 
         // The strip is drawn as light on a screen: the true intensity, not the N² scale.
-        for (let i = 0; i < STRIP_COLUMNS; i++) {
-          const s = range.min + ((i + 0.5) / STRIP_COLUMNS) * range.getLength();
+        for (let i = 0; i < GRATINGS_LAYOUT.STRIP_COLUMNS; i++) {
+          const s = range.min + ((i + 0.5) / GRATINGS_LAYOUT.STRIP_COLUMNS) * range.getLength();
           strip.intensities[i] = gratingIntensity(s, n, d, a, lambda);
         }
         strip.update(lightRgb(model.wavelengthProperty.value));
 
         // A red tick under each missing order inside the chart.
         const marks = new Shape();
-        for (const m of missingOrders(d, a, Math.min(60, maxOrder(d, lambda)))) {
+        for (const m of missingOrders(d, a, Math.min(GRATINGS_MISSING_ORDER_CAP, maxOrder(d, lambda)))) {
           for (const sign of [-1, 1]) {
             const s = sign * orderSinTheta(m, d, lambda);
             if (range.contains(s)) {
               const x = transform.modelToViewX(s);
-              marks.moveTo(x - 4, CHART_HEIGHT - 8).lineTo(x + 4, CHART_HEIGHT);
-              marks.moveTo(x - 4, CHART_HEIGHT).lineTo(x + 4, CHART_HEIGHT - 8);
+              marks
+                .moveTo(
+                  x - GRATINGS_LAYOUT.MISSING_MARK_HALF,
+                  GRATINGS_LAYOUT.CHART_HEIGHT - GRATINGS_LAYOUT.MISSING_MARK_RISE,
+                )
+                .lineTo(x + GRATINGS_LAYOUT.MISSING_MARK_HALF, GRATINGS_LAYOUT.CHART_HEIGHT);
+              marks
+                .moveTo(x - GRATINGS_LAYOUT.MISSING_MARK_HALF, GRATINGS_LAYOUT.CHART_HEIGHT)
+                .lineTo(
+                  x + GRATINGS_LAYOUT.MISSING_MARK_HALF,
+                  GRATINGS_LAYOUT.CHART_HEIGHT - GRATINGS_LAYOUT.MISSING_MARK_RISE,
+                );
             }
           }
         }

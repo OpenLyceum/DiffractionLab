@@ -42,12 +42,15 @@ import {
 import { lightColor } from "../../common/view/lightColor.js";
 import DiffractionLabColors from "../../DiffractionLabColors.js";
 import {
+  ARCMIN_PER_RADIAN,
+  DEGREES_PER_RADIAN,
   FONTS,
   ILLUMINATED_LINES_RANGE,
   LINE_SEPARATION_RANGE_NM,
   LINE_WAVELENGTH_RANGE_NM,
   MAX_ORDER_BUTTON,
   RESOLVING_CHART_SAMPLES,
+  RESOLVING_LAYOUT,
   RULING_RANGE_PER_MM,
   SCREEN_VIEW_MARGIN,
 } from "../../DiffractionLabConstants.js";
@@ -56,22 +59,6 @@ import { LINE_PAIRS, type ResolvingPowerModel } from "../model/ResolvingPowerMod
 import { ResolvingPowerScreenSummaryContent } from "./ResolvingPowerScreenSummaryContent.js";
 
 export type ResolvingPowerScreenViewOptions = ScreenViewOptions;
-
-const ARCMIN_PER_RADIAN = (180 / Math.PI) * 60;
-
-const STRIP_LEFT = 70;
-const STRIP_TOP = 34;
-const STRIP_WIDTH = 560;
-const STRIP_HEIGHT = 44;
-
-const CHART_LEFT = 70;
-const CHART_TOP = 140;
-const CHART_WIDTH = 560;
-const CHART_HEIGHT = 285;
-
-/** The zoomed chart spans this many line separations, or this many line widths, whichever is wider. */
-const WINDOW_SEPARATIONS = 3;
-const WINDOW_LINE_WIDTHS = 4;
 
 export class ResolvingPowerScreenView extends ScreenView {
   public constructor(model: ResolvingPowerModel, providedOptions?: ResolvingPowerScreenViewOptions) {
@@ -88,73 +75,80 @@ export class ResolvingPowerScreenView extends ScreenView {
     const a11y = StringManager.getInstance().getResolvingPowerA11yStrings();
 
     // ── Spectrum strip: every order of both lines, −90° to +90° ────────────────
-    const stripBackground = new Rectangle(STRIP_LEFT, STRIP_TOP, STRIP_WIDTH, STRIP_HEIGHT, {
-      fill: DiffractionLabColors.filmColorProperty,
-      stroke: DiffractionLabColors.chartAxisColorProperty,
-    });
+    const stripBackground = new Rectangle(
+      RESOLVING_LAYOUT.STRIP_LEFT,
+      RESOLVING_LAYOUT.STRIP_TOP,
+      RESOLVING_LAYOUT.STRIP_WIDTH,
+      RESOLVING_LAYOUT.STRIP_HEIGHT,
+      {
+        fill: DiffractionLabColors.filmColorProperty,
+        stroke: DiffractionLabColors.chartAxisColorProperty,
+      },
+    );
     const stripLines = new Node();
     const stripTitle = new Text(strings.spectrumTitleStringProperty, {
       font: FONTS.SMALL,
       fill: DiffractionLabColors.textColorProperty,
-      maxWidth: STRIP_WIDTH,
+      maxWidth: RESOLVING_LAYOUT.STRIP_WIDTH,
     });
     stripTitle.boundsProperty.link(() => {
-      stripTitle.left = STRIP_LEFT;
-      stripTitle.bottom = STRIP_TOP - 4;
+      stripTitle.left = RESOLVING_LAYOUT.STRIP_LEFT;
+      stripTitle.bottom = RESOLVING_LAYOUT.STRIP_TOP - RESOLVING_LAYOUT.STRIP_TITLE_GAP;
     });
-    const angleToStripX = (thetaRad: number): number => STRIP_LEFT + STRIP_WIDTH * (0.5 + thetaRad / Math.PI);
+    const angleToStripX = (thetaRad: number): number =>
+      RESOLVING_LAYOUT.STRIP_LEFT + RESOLVING_LAYOUT.STRIP_WIDTH * (0.5 + thetaRad / Math.PI);
 
     // ── Zoomed chart ────────────────────────────────────────────────────────────
     const chart = new ChartFrameNode({
-      viewWidth: CHART_WIDTH,
-      viewHeight: CHART_HEIGHT,
+      viewWidth: RESOLVING_LAYOUT.CHART_WIDTH,
+      viewHeight: RESOLVING_LAYOUT.CHART_HEIGHT,
       xRange: new Range(-1, 1),
-      yRange: new Range(0, 2.1),
+      yRange: new Range(0, RESOLVING_LAYOUT.Y_MAX),
       xAxisLabelProperty: strings.zoomAxisStringProperty,
       yAxisLabelProperty: strings.intensityAxisStringProperty,
-      nodeOptions: { x: CHART_LEFT, y: CHART_TOP },
+      nodeOptions: { x: RESOLVING_LAYOUT.CHART_LEFT, y: RESOLVING_LAYOUT.CHART_TOP },
     });
     const transform = chart.chartTransform;
     const firstPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.firstLineColorProperty,
-      lineWidth: 1.5,
+      lineWidth: RESOLVING_LAYOUT.LINE_WIDTH,
     });
     const secondPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.secondLineColorProperty,
-      lineWidth: 1.5,
+      lineWidth: RESOLVING_LAYOUT.LINE_WIDTH,
     });
     const sumPlot = new LinePlot(transform, [], {
       stroke: DiffractionLabColors.intensityCurveColorProperty,
-      lineWidth: 2,
+      lineWidth: RESOLVING_LAYOUT.SUM_LINE_WIDTH,
     });
     chart.plotLayer.children = [firstPlot, secondPlot, sumPlot];
 
-    const rayleighLine = new Line(0, 0, 0, CHART_HEIGHT, {
+    const rayleighLine = new Line(0, 0, 0, RESOLVING_LAYOUT.CHART_HEIGHT, {
       stroke: DiffractionLabColors.markerColorProperty,
-      lineDash: [5, 4],
+      lineDash: [...RESOLVING_LAYOUT.RAYLEIGH_DASH],
     });
     const rayleighLabel = new Text(strings.rayleighMarkerStringProperty, {
       font: FONTS.SMALL,
       fill: DiffractionLabColors.markerColorProperty,
-      maxWidth: 140,
+      maxWidth: RESOLVING_LAYOUT.RAYLEIGH_LABEL_MAX_WIDTH,
     });
     chart.overlayLayer.children = [rayleighLine, rayleighLabel];
 
     const unavailableText = new Text("", {
       font: FONTS.LABEL,
       fill: DiffractionLabColors.markerColorProperty,
-      maxWidth: CHART_WIDTH - 20,
+      maxWidth: RESOLVING_LAYOUT.CHART_WIDTH - 2 * RESOLVING_LAYOUT.LEGEND_INSET,
     });
 
     const legend = new HBox({
-      spacing: 14,
+      spacing: RESOLVING_LAYOUT.LEGEND_SPACING,
       children: [
         legendEntry(strings.firstLineStringProperty, DiffractionLabColors.firstLineColorProperty),
         legendEntry(strings.secondLineStringProperty, DiffractionLabColors.secondLineColorProperty),
         legendEntry(strings.sumStringProperty, DiffractionLabColors.intensityCurveColorProperty),
       ],
-      left: CHART_LEFT + 8,
-      top: CHART_TOP + 8,
+      left: RESOLVING_LAYOUT.CHART_LEFT + RESOLVING_LAYOUT.LEGEND_INSET,
+      top: RESOLVING_LAYOUT.CHART_TOP + RESOLVING_LAYOUT.LEGEND_INSET,
     });
 
     // ── Readouts ────────────────────────────────────────────────────────────────
@@ -193,7 +187,7 @@ export class ResolvingPowerScreenView extends ScreenView {
       () => {
         const s = orderSinTheta(model.orderProperty.value, model.spacingProperty.value, model.wavelengthProperty.value);
         return StringUtils.fillIn(strings.angleReadoutStringProperty.value, {
-          value: Math.abs(s) <= 1 ? formatSignificant((Math.asin(s) * 180) / Math.PI, 4) : "—",
+          value: Math.abs(s) <= 1 ? formatSignificant(Math.asin(s) * DEGREES_PER_RADIAN, 4) : "—",
         });
       },
     );
@@ -220,26 +214,26 @@ export class ResolvingPowerScreenView extends ScreenView {
     });
 
     const readouts = new HBox({
-      spacing: 30,
+      spacing: RESOLVING_LAYOUT.READOUTS_SPACING,
       align: "top",
       children: [
         new VBox({
-          spacing: 6,
+          spacing: RESOLVING_LAYOUT.READOUTS_COLUMN_SPACING,
           align: "left",
           children: [createReadout(powerReadoutProperty), createReadout(requiredReadoutProperty), verdictText],
         }),
         new VBox({
-          spacing: 6,
+          spacing: RESOLVING_LAYOUT.READOUTS_COLUMN_SPACING,
           align: "left",
           children: [
             createReadout(angleReadoutProperty),
             createReadout(dispersionReadoutProperty),
-            createEquationNode(strings.equationStringProperty, 200),
+            createEquationNode(strings.equationStringProperty, RESOLVING_LAYOUT.EQUATION_MAX_WIDTH),
           ],
         }),
       ],
-      left: CHART_LEFT,
-      top: CHART_TOP + CHART_HEIGHT + 52,
+      left: RESOLVING_LAYOUT.CHART_LEFT,
+      top: RESOLVING_LAYOUT.CHART_TOP + RESOLVING_LAYOUT.CHART_HEIGHT + RESOLVING_LAYOUT.READOUTS_GAP,
     });
 
     // ── Controls ────────────────────────────────────────────────────────────────
@@ -249,19 +243,23 @@ export class ResolvingPowerScreenView extends ScreenView {
       hydrogen: strings.hydrogenStringProperty,
     } as const;
     const presetButtons = LINE_PAIRS.map((pair) =>
-      createTextButton(presetLabels[pair.id], () => model.selectPair(pair), 90),
+      createTextButton(presetLabels[pair.id], () => model.selectPair(pair), RESOLVING_LAYOUT.PRESET_BUTTON_WIDTH),
     );
     const presetsTitle = new Text(strings.presetsStringProperty, {
       font: FONTS.LABEL,
       fill: DiffractionLabColors.textColorProperty,
-      maxWidth: 260,
+      maxWidth: RESOLVING_LAYOUT.PRESETS_TITLE_MAX_WIDTH,
     });
 
     const wavelengthControl = createNumberControl(
       strings.lineWavelengthStringProperty,
       model.wavelengthProperty,
       LINE_WAVELENGTH_RANGE_NM,
-      { significantFigures: 4, delta: 0.1, unitsProperty: units.nanometresStringProperty },
+      {
+        significantFigures: 4,
+        delta: RESOLVING_LAYOUT.WAVELENGTH_DELTA,
+        unitsProperty: units.nanometresStringProperty,
+      },
     );
     const separationControl = createNumberControl(
       strings.lineSeparationStringProperty,
@@ -271,7 +269,7 @@ export class ResolvingPowerScreenView extends ScreenView {
     );
     const rulingControl = createNumberControl(strings.rulingStringProperty, model.rulingProperty, RULING_RANGE_PER_MM, {
       decimalPlaces: 0,
-      delta: 10,
+      delta: RESOLVING_LAYOUT.RULING_DELTA,
       unitsProperty: units.linesPerMillimetreStringProperty,
     });
     const linesControl = createNumberControl(
@@ -282,7 +280,7 @@ export class ResolvingPowerScreenView extends ScreenView {
         logarithmic: true,
         integer: true,
         significantFigures: 4,
-        delta: 0.01,
+        delta: RESOLVING_LAYOUT.LINES_LOG_DELTA,
         formatValue: (value) => formatGrouped(value),
       },
     );
@@ -297,25 +295,29 @@ export class ResolvingPowerScreenView extends ScreenView {
     });
     const orderButtons = createRadioButtons(model.orderProperty, orderChoices, a11y.controls.orderStringProperty);
     const orderRow = new HBox({
-      spacing: 10,
+      spacing: RESOLVING_LAYOUT.ORDER_ROW_SPACING,
       children: [
         new Text(strings.orderStringProperty, {
           font: FONTS.LABEL,
           fill: DiffractionLabColors.textColorProperty,
-          maxWidth: 80,
+          maxWidth: RESOLVING_LAYOUT.ORDER_LABEL_MAX_WIDTH,
         }),
         orderButtons,
       ],
     });
-    const justResolveButton = createTextButton(strings.justResolveStringProperty, () => model.justResolve(), 230);
+    const justResolveButton = createTextButton(
+      strings.justResolveStringProperty,
+      () => model.justResolve(),
+      RESOLVING_LAYOUT.JUST_RESOLVE_BUTTON_WIDTH,
+    );
 
     const controlsPanel = new DiffractionLabPanel(
       new VBox({
-        spacing: 10,
+        spacing: RESOLVING_LAYOUT.CONTROLS_SPACING,
         align: "left",
         children: [
           presetsTitle,
-          new HBox({ spacing: 6, children: presetButtons }),
+          new HBox({ spacing: RESOLVING_LAYOUT.PRESET_ROW_SPACING, children: presetButtons }),
           wavelengthControl,
           separationControl,
           rulingControl,
@@ -356,10 +358,16 @@ export class ResolvingPowerScreenView extends ScreenView {
             }
             const x = angleToStripX(Math.asin(s));
             stripChildren.push(
-              new Line(x, STRIP_TOP + 2, x, STRIP_TOP + STRIP_HEIGHT - 2, {
-                stroke: m === 0 ? DiffractionLabColors.exposedColorProperty : lightColor(lambda),
-                lineWidth: 2,
-              }),
+              new Line(
+                x,
+                RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_LINE_INSET,
+                x,
+                RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_HEIGHT - RESOLVING_LAYOUT.STRIP_LINE_INSET,
+                {
+                  stroke: m === 0 ? DiffractionLabColors.exposedColorProperty : lightColor(lambda),
+                  lineWidth: RESOLVING_LAYOUT.STRIP_LINE_WIDTH,
+                },
+              ),
             );
             if (lambda === lambda1) {
               stripChildren.push(
@@ -367,7 +375,7 @@ export class ResolvingPowerScreenView extends ScreenView {
                   font: FONTS.SMALL,
                   fill: DiffractionLabColors.textColorProperty,
                   centerX: x,
-                  top: STRIP_TOP + STRIP_HEIGHT + 2,
+                  top: RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_HEIGHT + RESOLVING_LAYOUT.ORDER_LABEL_GAP,
                 }),
               );
             }
@@ -394,24 +402,27 @@ export class ResolvingPowerScreenView extends ScreenView {
         const theta2 = Math.asin(Math.min(1, s2));
         const centre = (theta1 + theta2) / 2;
         const lineWidth = lambda1 / (n * d * Math.cos(theta1));
-        const halfWindow = Math.max((WINDOW_SEPARATIONS * (theta2 - theta1)) / 2, WINDOW_LINE_WIDTHS * lineWidth);
+        const halfWindow = Math.max(
+          (RESOLVING_LAYOUT.WINDOW_SEPARATIONS * (theta2 - theta1)) / 2,
+          RESOLVING_LAYOUT.WINDOW_LINE_WIDTHS * lineWidth,
+        );
 
         // Mark the zoomed window on the strip.
         const windowLeft = angleToStripX(centre - halfWindow);
         const windowRight = angleToStripX(centre + halfWindow);
         stripChildren.push(
           new Rectangle(
-            Math.min(windowLeft, windowRight - 6),
-            STRIP_TOP - 2,
-            Math.max(6, windowRight - windowLeft),
-            STRIP_HEIGHT + 4,
-            { stroke: DiffractionLabColors.cursorColorProperty, lineWidth: 1.5 },
+            Math.min(windowLeft, windowRight - RESOLVING_LAYOUT.WINDOW_MIN_WIDTH),
+            RESOLVING_LAYOUT.STRIP_TOP - RESOLVING_LAYOUT.WINDOW_OUTSET,
+            Math.max(RESOLVING_LAYOUT.WINDOW_MIN_WIDTH, windowRight - windowLeft),
+            RESOLVING_LAYOUT.STRIP_HEIGHT + 2 * RESOLVING_LAYOUT.WINDOW_OUTSET,
+            { stroke: DiffractionLabColors.cursorColorProperty, lineWidth: RESOLVING_LAYOUT.WINDOW_LINE_WIDTH },
           ),
         );
         stripLines.children = stripChildren;
 
         const halfArcmin = halfWindow * ARCMIN_PER_RADIAN;
-        chart.setRanges(new Range(-halfArcmin, halfArcmin), new Range(0, 2.1));
+        chart.setRanges(new Range(-halfArcmin, halfArcmin), new Range(0, RESOLVING_LAYOUT.Y_MAX));
         const first: Vector2[] = [];
         const second: Vector2[] = [];
         const sum: Vector2[] = [];
@@ -433,8 +444,8 @@ export class ResolvingPowerScreenView extends ScreenView {
         const zeroX = transform.modelToViewX((Math.asin(Math.min(1, zero)) - centre) * ARCMIN_PER_RADIAN);
         rayleighLine.x1 = zeroX;
         rayleighLine.x2 = zeroX;
-        rayleighLabel.left = zeroX + 4;
-        rayleighLabel.top = 4;
+        rayleighLabel.left = zeroX + RESOLVING_LAYOUT.RAYLEIGH_LABEL_GAP;
+        rayleighLabel.top = RESOLVING_LAYOUT.RAYLEIGH_LABEL_GAP;
       },
     );
 
@@ -485,10 +496,17 @@ export class ResolvingPowerScreenView extends ScreenView {
 /** A short coloured line followed by a label. */
 function legendEntry(labelProperty: TReadOnlyProperty<string>, color: ProfileColorProperty): Node {
   return new HBox({
-    spacing: 4,
+    spacing: RESOLVING_LAYOUT.LEGEND_ENTRY_SPACING,
     children: [
-      new Path(new Shape().moveTo(0, 0).lineTo(18, 0), { stroke: color, lineWidth: 2 }),
-      new Text(labelProperty, { font: FONTS.SMALL, fill: DiffractionLabColors.textColorProperty, maxWidth: 80 }),
+      new Path(new Shape().moveTo(0, 0).lineTo(RESOLVING_LAYOUT.LEGEND_SWATCH_LENGTH, 0), {
+        stroke: color,
+        lineWidth: RESOLVING_LAYOUT.STRIP_LINE_WIDTH,
+      }),
+      new Text(labelProperty, {
+        font: FONTS.SMALL,
+        fill: DiffractionLabColors.textColorProperty,
+        maxWidth: RESOLVING_LAYOUT.LEGEND_LABEL_MAX_WIDTH,
+      }),
     ],
   });
 }
