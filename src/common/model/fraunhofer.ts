@@ -50,6 +50,7 @@ export function singleSlitAmplitude(sinTheta: number, a: number, wavelength: num
  * Normalized array factor sin(Nφ/2) / (N sin(φ/2)), signed, equal to ±1 at the
  * principal maxima. At φ = 2πm the 0/0 is resolved by L'Hôpital's rule,
  * which gives cos(Nφ/2)/cos(φ/2).
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function arrayFactor(phi: number, slitCount: number): number {
   const denominator = Math.sin(phi / 2);

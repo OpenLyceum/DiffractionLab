@@ -67,7 +67,10 @@ export type FilmRecord = {
 
 const K = HOLOGRAM_WAVE_NUMBER;
 
-/** Fringe visibility γ(ΔL) = exp(−(ΔL/L_c)²). */
+/**
+ * Fringe visibility γ(ΔL) = exp(−(ΔL/L_c)²).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function coherenceFactor(pathDifference: number, coherenceLength: number): number {
   if (!Number.isFinite(coherenceLength)) {
     return 1;

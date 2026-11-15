@@ -48,7 +48,10 @@ export function phasorChain(
   return { points, phi, phasorLength };
 }
 
-/** Length of the resultant of a chain. */
+/**
+ * Length of the resultant of a chain.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export function resultantLength(chain: PhasorChain): number {
   const last = chain.points[chain.points.length - 1] ?? { x: 0, y: 0 };
   return Math.hypot(last.x, last.y);

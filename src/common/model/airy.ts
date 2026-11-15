@@ -17,10 +17,16 @@ import {
   NEAR_ZERO_SINC,
 } from "../../DiffractionLabConstants.js";
 
-/** First zero of J₁. */
+/**
+ * First zero of J₁.
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export const J1_FIRST_ZERO = 3.831705970207512;
 
-/** Second zero of J₁ (second dark ring). */
+/**
+ * Second zero of J₁ (second dark ring).
+ * @internal Exported for unit tests; not part of the application API.
+ */
 export const J1_SECOND_ZERO = 7.015586669815619;
 
 /** The Rayleigh factor 3.8317/π ≈ 1.22. */
@@ -30,6 +36,7 @@ export const RAYLEIGH_FACTOR = J1_FIRST_ZERO / Math.PI;
  * Bessel function of the first kind, order one. Rational approximation for
  * |x| < 8 and the asymptotic form beyond (Numerical Recipes in C, 2nd ed.,
  * §6.5, `bessj1`); absolute error below about 1e-8.
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function besselJ1(x: number): number {
   const ax = Math.abs(x);
@@ -113,6 +120,7 @@ export function pointSpreadFunction(r: number, seeingFwhmInRayleigh: number): nu
  * Image of two equal, incoherent point sources a distance `separation` apart
  * along x (both in Rayleigh units), so their intensities add. Each source has
  * peak intensity 1.
+ * @internal Exported for unit tests; not part of the application API.
  */
 export function twoSourceIntensity(x: number, y: number, separation: number, seeingFwhmInRayleigh = 0): number {
   const half = separation / 2;
