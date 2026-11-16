@@ -1,3 +1,4 @@
+import { HOLOGRAM_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * hologram.ts
  *
@@ -204,8 +205,8 @@ export function focusWidth(
   source: { readonly re: Float64Array; readonly im: Float64Array },
   film: FilmRecord,
   object: HologramObject,
-  window = 30,
-  step = 0.25,
+  window: number = HOLOGRAM_SETTINGS.DEFAULT_WINDOW,
+  step: number = HOLOGRAM_SETTINGS.DEFAULT_STEP,
 ): number {
   const count = Math.round((2 * window) / step) + 1;
   const values = new Float64Array(count);

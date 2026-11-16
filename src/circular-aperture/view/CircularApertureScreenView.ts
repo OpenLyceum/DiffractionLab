@@ -1,3 +1,4 @@
+import { CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * CircularApertureScreenView.ts
  *
@@ -114,7 +115,10 @@ export class CircularApertureScreenView extends ScreenView {
     const fieldText = createReadout(
       DerivedProperty.deriveAny([halfFieldProperty, strings.fieldOfViewStringProperty], () =>
         StringUtils.fillIn(strings.fieldOfViewStringProperty.value, {
-          value: formatSignificant(2 * halfFieldProperty.value, 3),
+          value: formatSignificant(
+            2 * halfFieldProperty.value,
+            CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS.FIELD_TEXT_DIGITS,
+          ),
         }),
       ),
       { font: FONTS.SMALL, maxWidth: APERTURE_LAYOUT.IMAGE_SIZE },
@@ -171,14 +175,20 @@ export class CircularApertureScreenView extends ScreenView {
       [model.rayleighAngleProperty, strings.rayleighReadoutStringProperty],
       () =>
         StringUtils.fillIn(strings.rayleighReadoutStringProperty.value, {
-          value: formatSignificant(model.rayleighAngleProperty.value, 3),
+          value: formatSignificant(
+            model.rayleighAngleProperty.value,
+            CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS.VALUE_FORMAT_SIGNIFICANT_DIGITS,
+          ),
         }),
     );
     const ratioReadoutProperty = DerivedProperty.deriveAny(
       [model.separationRatioProperty, strings.ratioReadoutStringProperty],
       () =>
         StringUtils.fillIn(strings.ratioReadoutStringProperty.value, {
-          value: formatSignificant(model.separationRatioProperty.value, 3),
+          value: formatSignificant(
+            model.separationRatioProperty.value,
+            CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS.VALUE_FORMAT_SIGNIFICANT_DIGITS,
+          ),
         }),
     );
     const dipReadoutProperty = DerivedProperty.deriveAny(
@@ -187,7 +197,10 @@ export class CircularApertureScreenView extends ScreenView {
         model.dipProperty.value <= 0
           ? strings.noDipStringProperty.value
           : StringUtils.fillIn(strings.dipReadoutStringProperty.value, {
-              value: formatSignificant(100 * model.dipProperty.value, 2),
+              value: formatSignificant(
+                100 * model.dipProperty.value,
+                CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS.DIP_READOUT_PROPERTY_DIGITS,
+              ),
             }),
     );
     const verdictProperty = DerivedProperty.deriveAny(

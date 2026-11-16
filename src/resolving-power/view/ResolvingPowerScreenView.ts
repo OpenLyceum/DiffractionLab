@@ -1,3 +1,4 @@
+import { RESOLVING_POWER_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * ResolvingPowerScreenView.ts
  *
@@ -187,7 +188,13 @@ export class ResolvingPowerScreenView extends ScreenView {
       () => {
         const s = orderSinTheta(model.orderProperty.value, model.spacingProperty.value, model.wavelengthProperty.value);
         return StringUtils.fillIn(strings.angleReadoutStringProperty.value, {
-          value: Math.abs(s) <= 1 ? formatSignificant(Math.asin(s) * DEGREES_PER_RADIAN, 4) : "—",
+          value:
+            Math.abs(s) <= 1
+              ? formatSignificant(
+                  Math.asin(s) * DEGREES_PER_RADIAN,
+                  RESOLVING_POWER_SCREEN_VIEW_SETTINGS.ANGLE_READOUT_PROPERTY_DIGITS,
+                )
+              : "—",
         });
       },
     );
@@ -199,7 +206,7 @@ export class ResolvingPowerScreenView extends ScreenView {
         const value =
           Math.abs(s) < 1 ? angularDispersion(model.orderProperty.value, d, s) * ARCMIN_PER_RADIAN : Number.NaN;
         return StringUtils.fillIn(strings.dispersionReadoutStringProperty.value, {
-          value: formatSignificant(value, 3),
+          value: formatSignificant(value, RESOLVING_POWER_SCREEN_VIEW_SETTINGS.DISPERSION_READOUT_PROPERTY_DIGITS),
         });
       },
     );
@@ -256,7 +263,7 @@ export class ResolvingPowerScreenView extends ScreenView {
       model.wavelengthProperty,
       LINE_WAVELENGTH_RANGE_NM,
       {
-        significantFigures: 4,
+        significantFigures: RESOLVING_POWER_SCREEN_VIEW_SETTINGS.WAVELENGTH_CONTROL_SIGNIFICANT_FIGURES,
         delta: RESOLVING_LAYOUT.WAVELENGTH_DELTA,
         unitsProperty: units.nanometresStringProperty,
       },
@@ -265,7 +272,11 @@ export class ResolvingPowerScreenView extends ScreenView {
       strings.lineSeparationStringProperty,
       model.separationProperty,
       LINE_SEPARATION_RANGE_NM,
-      { logarithmic: true, significantFigures: 2, unitsProperty: units.nanometresStringProperty },
+      {
+        logarithmic: true,
+        significantFigures: RESOLVING_POWER_SCREEN_VIEW_SETTINGS.SEPARATION_CONTROL_SIGNIFICANT_FIGURES,
+        unitsProperty: units.nanometresStringProperty,
+      },
     );
     const rulingControl = createNumberControl(strings.rulingStringProperty, model.rulingProperty, RULING_RANGE_PER_MM, {
       decimalPlaces: 0,
@@ -279,7 +290,7 @@ export class ResolvingPowerScreenView extends ScreenView {
       {
         logarithmic: true,
         integer: true,
-        significantFigures: 4,
+        significantFigures: RESOLVING_POWER_SCREEN_VIEW_SETTINGS.LINES_CONTROL_SIGNIFICANT_FIGURES,
         delta: RESOLVING_LAYOUT.LINES_LOG_DELTA,
         formatValue: (value) => formatGrouped(value),
       },

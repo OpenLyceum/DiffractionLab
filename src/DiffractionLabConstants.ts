@@ -549,6 +549,100 @@ export const HOLOGRAPHY_LAYOUT = {
   VIRTUAL_IMAGE_MAX_WIDTH: 200,
 } as const;
 
+/** Settings for common/model/airy.ts. */
+export const AIRY_SETTINGS = {
+  /** Samples used to locate the two-source intensity dip (count). */
+  DIP_SAMPLES: 400,
+  /** First zero of J₁.  @internal Exported for unit tests; not part of the application API. */
+  J1_FIRST_ZERO: 3.831705970207512,
+  /** Second zero of J₁ (second dark ring).  @internal Exported for unit tests; not part of the application API. */
+  J1_SECOND_ZERO: 7.015586669815619,
+} as const;
+
+/** Settings for common/model/hologram.ts. */
+export const HOLOGRAM_SETTINGS = {
+  /** Default window (wavelengths). */
+  DEFAULT_WINDOW: 30,
+  /** Default step (wavelengths). */
+  DEFAULT_STEP: 0.25,
+} as const;
+
+/** Settings for common/view/spectralColor.ts. Layout lengths are in px; counts and ratios are dimensionless. */
+export const SPECTRAL_COLOR_SETTINGS = {
+  /** Resolution of the linear-to-sRGB encoding table. */
+  GAMMA_TABLE_SIZE: 1024,
+} as const;
+
+/** Settings for holography/view/HolographyScreenView.ts. Layout lengths are in px; counts and ratios are dimensionless. */
+export const HOLOGRAPHY_SCREEN_VIEW_SETTINGS = {
+  COHERENCE_CONTROL_DIGITS: 2, // digits
+  FRINGE_READOUT_DIGITS: 3, // digits
+  FOCUS_READOUT_DIGITS: 2, // digits
+  EXPECTED_READOUT_DIGITS: 2, // digits
+
+  /** Coherence control significant figures (dimensionless). */
+  COHERENCE_CONTROL_SIGNIFICANT_FIGURES: 2,
+} as const;
+
+/** Settings for resolving-power/view/ResolvingPowerScreenView.ts. Layout lengths are in px; counts and ratios are dimensionless. */
+export const RESOLVING_POWER_SCREEN_VIEW_SETTINGS = {
+  ANGLE_READOUT_PROPERTY_DIGITS: 4, // digits
+  DISPERSION_READOUT_PROPERTY_DIGITS: 3, // digits
+
+  /** Wavelength control significant figures (dimensionless). */
+  WAVELENGTH_CONTROL_SIGNIFICANT_FIGURES: 4,
+  /** Separation control significant figures (dimensionless). */
+  SEPARATION_CONTROL_SIGNIFICANT_FIGURES: 2,
+  /** Lines control significant figures (dimensionless). */
+  LINES_CONTROL_SIGNIFICANT_FIGURES: 4,
+} as const;
+
+/** Numerical thresholds for the corresponding model. */
+export const FRAUNHOFER_NUMERICS = {
+  /** Tolerance for rounding diffraction orders (dimensionless). */
+  ORDER_EPSILON: 1e-9,
+  /** Envelope zero coincidence tolerance in order units. */
+  MISSING_ORDER_EPSILON: 1e-6,
+  /** Near-zero array-factor denominator threshold (dimensionless). */
+  DENOMINATOR_EPSILON: 1e-9,
+} as const;
+
+/** Layout lengths in px; precision values count digits; factors are dimensionless. */
+export const GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS = {
+  CURRENT_DETAILS_PROPERTY_DIGITS: 3, // digits
+
+  CURRENT_DETAILS_PROPERTY_SPACING: 3, // px
+  CURRENT_DETAILS_PROPERTY_WIDTH: 3, // px
+} as const;
+
+/** Component dimensions in px; ratios and control steps are dimensionless; precision counts digits. */
+export const RESOLVING_POWER_SCREEN_SUMMARY_CONTENT_SETTINGS = {
+  CURRENT_DETAILS_PROPERTY_DIGITS: 4, // digits
+  CURRENT_DETAILS_PROPERTY_DIGITS_SEGMENT_2: 5, // digits
+} as const;
+
+/** Component dimensions in px; ratios and control steps are dimensionless; precision counts digits. */
+export const HOLOGRAPHY_SCREEN_SUMMARY_CONTENT_SETTINGS = {
+  CURRENT_DETAILS_PROPERTY_DIGITS: 2, // digits
+} as const;
+
+/** Component dimensions in px; ratios and control steps are dimensionless; precision counts digits. */
+export const GRATINGS_SCREEN_VIEW_SETTINGS = {
+  PHI_READOUT_PROPERTY_DIGITS: 3, // digits
+} as const;
+
+/** Component dimensions in px; ratios and control steps are dimensionless; precision counts digits. */
+export const CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS = {
+  FIELD_TEXT_DIGITS: 3, // digits
+  VALUE_FORMAT_SIGNIFICANT_DIGITS: 3, // digits
+  DIP_READOUT_PROPERTY_DIGITS: 2, // digits
+} as const;
+
+/** Component dimensions in px; ratios and control steps are dimensionless; precision counts digits. */
+export const CIRCULAR_APERTURE_SCREEN_SUMMARY_CONTENT_SETTINGS = {
+  VALUE_FORMAT_SIGNIFICANT_DIGITS: 3, // digits
+} as const;
+
 DiffractionLabNamespace.register("DiffractionLabConstants", {
   SCREEN_VIEW_MARGIN,
   PANEL_CORNER_RADIUS,

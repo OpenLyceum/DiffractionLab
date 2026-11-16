@@ -1,3 +1,4 @@
+import { HOLOGRAPHY_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * HolographyScreenView.ts
  *
@@ -450,8 +451,11 @@ export class HolographyScreenView extends ScreenView {
       COHERENCE_LENGTH_RANGE,
       {
         logarithmic: true,
-        significantFigures: 2,
-        formatValue: (value) => (value >= COHERENCE_LENGTH_RANGE.max ? "∞" : `${formatSignificant(value, 2)} λ`),
+        significantFigures: HOLOGRAPHY_SCREEN_VIEW_SETTINGS.COHERENCE_CONTROL_SIGNIFICANT_FIGURES,
+        formatValue: (value) =>
+          value >= COHERENCE_LENGTH_RANGE.max
+            ? "∞"
+            : `${formatSignificant(value, HOLOGRAPHY_SCREEN_VIEW_SETTINGS.COHERENCE_CONTROL_DIGITS)} λ`,
         numberControlOptions: { enabledProperty: isRecordingProperty },
       },
     );
@@ -472,7 +476,10 @@ export class HolographyScreenView extends ScreenView {
     const fringeReadout = createReadout(
       DerivedProperty.deriveAny([model.referenceAngleProperty, strings.fringeSpacingReadoutStringProperty], () =>
         StringUtils.fillIn(strings.fringeSpacingReadoutStringProperty.value, {
-          value: formatSignificant(1 / Math.sin((model.referenceAngleProperty.value * Math.PI) / 180), 3),
+          value: formatSignificant(
+            1 / Math.sin((model.referenceAngleProperty.value * Math.PI) / 180),
+            HOLOGRAPHY_SCREEN_VIEW_SETTINGS.FRINGE_READOUT_DIGITS,
+          ),
         }),
       ),
       { font: FONTS.SMALL, maxWidth: HOLOGRAPHY_LAYOUT.CLOSE_UP_READOUT_MAX_WIDTH },
@@ -480,7 +487,10 @@ export class HolographyScreenView extends ScreenView {
     const focusReadout = createReadout(
       DerivedProperty.deriveAny([model.focusWidthProperty, strings.focusReadoutStringProperty], () =>
         StringUtils.fillIn(strings.focusReadoutStringProperty.value, {
-          value: model.focusWidthProperty.value === null ? "…" : formatSignificant(model.focusWidthProperty.value, 2),
+          value:
+            model.focusWidthProperty.value === null
+              ? "…"
+              : formatSignificant(model.focusWidthProperty.value, HOLOGRAPHY_SCREEN_VIEW_SETTINGS.FOCUS_READOUT_DIGITS),
         }),
       ),
       {
@@ -501,7 +511,12 @@ export class HolographyScreenView extends ScreenView {
           const first = model.objects[0];
           const aperture = model.halfFilmProperty.value ? FILM_WIDTH / 2 : FILM_WIDTH;
           return StringUtils.fillIn(strings.expectedReadoutStringProperty.value, {
-            value: first ? formatSignificant(expectedFocusWidth(aperture, first.depth), 2) : "—",
+            value: first
+              ? formatSignificant(
+                  expectedFocusWidth(aperture, first.depth),
+                  HOLOGRAPHY_SCREEN_VIEW_SETTINGS.EXPECTED_READOUT_DIGITS,
+                )
+              : "—",
           });
         },
       ),

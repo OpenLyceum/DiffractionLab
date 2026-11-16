@@ -1,3 +1,4 @@
+import { GRATINGS_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * GratingsScreenView.ts
  *
@@ -209,7 +210,10 @@ export class GratingsScreenView extends ScreenView {
 
     const phiReadoutProperty = DerivedProperty.deriveAny([chainProperty, strings.phiReadoutStringProperty], () =>
       StringUtils.fillIn(strings.phiReadoutStringProperty.value, {
-        value: formatSignificant(chainProperty.value.phi / (2 * Math.PI), 3),
+        value: formatSignificant(
+          chainProperty.value.phi / (2 * Math.PI),
+          GRATINGS_SCREEN_VIEW_SETTINGS.PHI_READOUT_PROPERTY_DIGITS,
+        ),
       }),
     );
     const intensityReadoutProperty = DerivedProperty.deriveAny(

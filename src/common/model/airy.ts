@@ -1,3 +1,4 @@
+import { AIRY_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * airy.ts
  *
@@ -21,13 +22,13 @@ import {
  * First zero of J₁.
  * @internal Exported for unit tests; not part of the application API.
  */
-export const J1_FIRST_ZERO = 3.831705970207512;
+export const J1_FIRST_ZERO: number = AIRY_SETTINGS.J1_FIRST_ZERO;
 
 /**
  * Second zero of J₁ (second dark ring).
  * @internal Exported for unit tests; not part of the application API.
  */
-export const J1_SECOND_ZERO = 7.015586669815619;
+export const J1_SECOND_ZERO: number = AIRY_SETTINGS.J1_SECOND_ZERO;
 
 /** The Rayleigh factor 3.8317/π ≈ 1.22. */
 export const RAYLEIGH_FACTOR = J1_FIRST_ZERO / Math.PI;
@@ -140,7 +141,7 @@ export function centralDipFraction(separation: number, seeingFwhmInRayleigh = 0)
   }
   const centre = twoSourceIntensity(0, 0, separation, seeingFwhmInRayleigh);
   let peak = centre;
-  const samples = 400;
+  const samples: number = AIRY_SETTINGS.DIP_SAMPLES;
   for (let i = 1; i <= samples; i++) {
     const x = (i / samples) * separation;
     peak = Math.max(peak, twoSourceIntensity(x, 0, separation, seeingFwhmInRayleigh));

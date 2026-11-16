@@ -1,3 +1,5 @@
+import { SPECTRAL_COLOR_SETTINGS } from "../../DiffractionLabConstants.js";
+
 /**
  * spectralColor.ts
  *
@@ -86,7 +88,7 @@ export function wavelengthToLinearRgb(nm: number): readonly [number, number, num
 }
 
 /** Resolution of the linear-to-sRGB encoding table. */
-const GAMMA_TABLE_SIZE = 1024;
+const GAMMA_TABLE_SIZE: number = SPECTRAL_COLOR_SETTINGS.GAMMA_TABLE_SIZE;
 
 /**
  * Lookup table for the sRGB transfer function, so the per-pixel path never calls

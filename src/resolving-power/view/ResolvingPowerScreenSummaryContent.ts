@@ -1,3 +1,4 @@
+import { RESOLVING_POWER_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * ResolvingPowerScreenSummaryContent.ts
  *
@@ -35,8 +36,14 @@ export class ResolvingPowerScreenSummaryContent extends ScreenSummaryContent {
         const lambda = model.wavelengthProperty.value;
         const verdict = model.verdictProperty.value;
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
-          wavelength: formatSignificant(lambda, 4),
-          wavelength2: formatSignificant(lambda + model.separationProperty.value, 5),
+          wavelength: formatSignificant(
+            lambda,
+            RESOLVING_POWER_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS,
+          ),
+          wavelength2: formatSignificant(
+            lambda + model.separationProperty.value,
+            RESOLVING_POWER_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS_SEGMENT_2,
+          ),
           order: model.orderProperty.value,
           lines: model.illuminatedLinesProperty.value,
           power: model.resolvingPowerProperty.value,

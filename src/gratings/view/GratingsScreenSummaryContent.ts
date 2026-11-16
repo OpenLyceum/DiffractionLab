@@ -1,3 +1,4 @@
+import { GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * GratingsScreenSummaryContent.ts
  *
@@ -48,12 +49,16 @@ export class GratingsScreenSummaryContent extends ScreenSummaryContent {
         const turns = phaseStep(s, d, lambda) / (2 * Math.PI);
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
           count: n,
-          spacing: formatSignificant(d, 3),
-          width: formatSignificant(a, 3),
+          spacing: formatSignificant(d, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_SPACING),
+          width: formatSignificant(a, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_WIDTH),
           wavelength: Math.round(model.wavelengthProperty.value),
           missing: `${missingOrdersText(d, a, lambda)}.`,
-          sinTheta: toPlainText(formatSignificant(s, 3)),
-          phi: toPlainText(formatSignificant(turns, 3)),
+          sinTheta: toPlainText(
+            formatSignificant(s, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS),
+          ),
+          phi: toPlainText(
+            formatSignificant(turns, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS),
+          ),
           intensity: toPlainText(formatIntensity(gratingIntensity(s, n, d, a, lambda))),
         });
       },

@@ -1,3 +1,4 @@
+import { HOLOGRAPHY_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * HolographyScreenSummaryContent.ts
  *
@@ -36,10 +37,18 @@ export class HolographyScreenSummaryContent extends ScreenSummaryContent {
           mode: reconstructing ? strings.reconstructStringProperty.value : strings.recordStringProperty.value,
           count: model.objectCountProperty.value,
           angle: Math.round(model.referenceAngleProperty.value),
-          coherence: formatSignificant(model.coherenceLengthProperty.value, 2),
+          coherence: formatSignificant(
+            model.coherenceLengthProperty.value,
+            HOLOGRAPHY_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS,
+          ),
           focus:
             reconstructing && width !== null
-              ? StringUtils.fillIn(a11y.focusPatternStringProperty.value, { width: formatSignificant(width, 2) })
+              ? StringUtils.fillIn(a11y.focusPatternStringProperty.value, {
+                  width: formatSignificant(
+                    width,
+                    HOLOGRAPHY_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS,
+                  ),
+                })
               : "",
         });
       },

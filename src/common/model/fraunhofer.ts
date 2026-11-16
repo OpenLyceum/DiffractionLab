@@ -1,3 +1,4 @@
+import { FRAUNHOFER_NUMERICS } from "../../DiffractionLabConstants.js";
 /**
  * fraunhofer.ts
  *
@@ -54,7 +55,7 @@ export function singleSlitAmplitude(sinTheta: number, a: number, wavelength: num
  */
 export function arrayFactor(phi: number, slitCount: number): number {
   const denominator = Math.sin(phi / 2);
-  if (Math.abs(denominator) < 1e-9) {
+  if (Math.abs(denominator) < FRAUNHOFER_NUMERICS.DENOMINATOR_EPSILON) {
     return Math.cos((slitCount * phi) / 2) / Math.cos(phi / 2);
   }
   return Math.sin((slitCount * phi) / 2) / (slitCount * denominator);
@@ -98,7 +99,7 @@ export function maxOrder(d: number, wavelength: number): number {
 export function maxUsableOrder(d: number, wavelength: number): number {
   const ratio = d / wavelength;
   const top = maxOrder(d, wavelength);
-  return Math.abs(ratio - Math.round(ratio)) < 1e-9 * Math.max(1, ratio) ? top - 1 : top;
+  return Math.abs(ratio - Math.round(ratio)) < FRAUNHOFER_NUMERICS.ORDER_EPSILON * Math.max(1, ratio) ? top - 1 : top;
 }
 
 /** sin θ of the order-m principal maximum: mλ/d. */
@@ -116,7 +117,7 @@ export function missingOrders(d: number, a: number, mMax: number): number[] {
   for (let m = 1; m <= mMax; m++) {
     const envelopeOrder = (m * a) / d;
     const nearest = Math.round(envelopeOrder);
-    if (nearest >= 1 && Math.abs(envelopeOrder - nearest) < 1e-6) {
+    if (nearest >= 1 && Math.abs(envelopeOrder - nearest) < FRAUNHOFER_NUMERICS.MISSING_ORDER_EPSILON) {
       result.push(m);
     }
   }
@@ -133,7 +134,7 @@ export function fringesInCentralEnvelope(d: number, a: number): number {
   let count = 0;
   const limit = Math.ceil(ratio);
   for (let m = -limit; m <= limit; m++) {
-    if (Math.abs(m) < ratio - 1e-9) {
+    if (Math.abs(m) < ratio - FRAUNHOFER_NUMERICS.ORDER_EPSILON) {
       count++;
     }
   }
@@ -156,7 +157,7 @@ export function resolvingPower(order: number, illuminatedLines: number): number 
  * (the book's sodium example gives 982).
  */
 export function linesToResolve(wavelength: number, deltaWavelength: number, order: number): number {
-  return Math.ceil(wavelength / (order * deltaWavelength) - 1e-9);
+  return Math.ceil(wavelength / (order * deltaWavelength) - FRAUNHOFER_NUMERICS.ORDER_EPSILON);
 }
 
 /**

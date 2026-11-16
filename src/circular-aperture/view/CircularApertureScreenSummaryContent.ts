@@ -1,3 +1,4 @@
+import { CIRCULAR_APERTURE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * CircularApertureScreenSummaryContent.ts
  *
@@ -38,9 +39,24 @@ export class CircularApertureScreenSummaryContent extends ScreenSummaryContent {
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
           diameter: formatDiameter(model.diameterProperty.value),
           wavelength: Math.round(model.wavelengthProperty.value),
-          rayleigh: toPlainText(formatSignificant(model.rayleighAngleProperty.value, 3)),
-          separation: toPlainText(formatSignificant(model.separationProperty.value, 3)),
-          ratio: toPlainText(formatSignificant(model.separationRatioProperty.value, 3)),
+          rayleigh: toPlainText(
+            formatSignificant(
+              model.rayleighAngleProperty.value,
+              CIRCULAR_APERTURE_SCREEN_SUMMARY_CONTENT_SETTINGS.VALUE_FORMAT_SIGNIFICANT_DIGITS,
+            ),
+          ),
+          separation: toPlainText(
+            formatSignificant(
+              model.separationProperty.value,
+              CIRCULAR_APERTURE_SCREEN_SUMMARY_CONTENT_SETTINGS.VALUE_FORMAT_SIGNIFICANT_DIGITS,
+            ),
+          ),
+          ratio: toPlainText(
+            formatSignificant(
+              model.separationRatioProperty.value,
+              CIRCULAR_APERTURE_SCREEN_SUMMARY_CONTENT_SETTINGS.VALUE_FORMAT_SIGNIFICANT_DIGITS,
+            ),
+          ),
           verdict:
             verdict === "resolved"
               ? strings.resolvedStringProperty.value
