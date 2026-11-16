@@ -611,8 +611,8 @@ export const FRAUNHOFER_NUMERICS = {
 export const GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS = {
   CURRENT_DETAILS_PROPERTY_DIGITS: 3, // digits
 
-  CURRENT_DETAILS_PROPERTY_SPACING: 3, // px
-  CURRENT_DETAILS_PROPERTY_WIDTH: 3, // px
+  SPACING_DIGITS: 3, // digits
+  WIDTH_DIGITS: 3, // digits
 } as const;
 
 /** Component dimensions in px; ratios and control steps are dimensionless; precision counts digits. */

@@ -49,8 +49,8 @@ export class GratingsScreenSummaryContent extends ScreenSummaryContent {
         const turns = phaseStep(s, d, lambda) / (2 * Math.PI);
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
           count: n,
-          spacing: formatSignificant(d, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_SPACING),
-          width: formatSignificant(a, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_WIDTH),
+          spacing: formatSignificant(d, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.SPACING_DIGITS),
+          width: formatSignificant(a, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.WIDTH_DIGITS),
           wavelength: Math.round(model.wavelengthProperty.value),
           missing: `${missingOrdersText(d, a, lambda)}.`,
           sinTheta: toPlainText(
