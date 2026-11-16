@@ -74,7 +74,10 @@ export function gratingIntensity(
   return envelope * envelope * array * array;
 }
 
-/** Single-slit envelope sinc²(β/2), normalized to 1 straight ahead. */
+/**
+ * Single-slit envelope sinc²(β/2), normalized to 1 straight ahead.
+ * @internal Exported to test the single-slit and principal-maximum limits of grating intensity.
+ */
 export function envelopeIntensity(sinTheta: number, a: number, wavelength: number): number {
   const amplitude = singleSlitAmplitude(sinTheta, a, wavelength);
   return amplitude * amplitude;
@@ -164,7 +167,7 @@ export function linesToResolve(wavelength: number, deltaWavelength: number, orde
  * sin θ of the first zero next to the order-m principal maximum, on the
  * long-wavelength side: Nφ/2 = mNπ + π, i.e. sinθ = (m + 1/N) λ / d.
  */
-export function firstZeroSinTheta(order: number, slitCount: number, d: number, wavelength: number): number {
+function firstZeroSinTheta(order: number, slitCount: number, d: number, wavelength: number): number {
   return ((order + 1 / slitCount) * wavelength) / d;
 }
 
