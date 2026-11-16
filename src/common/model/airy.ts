@@ -30,7 +30,10 @@ export const J1_FIRST_ZERO: number = AIRY_SETTINGS.J1_FIRST_ZERO;
  */
 export const J1_SECOND_ZERO: number = AIRY_SETTINGS.J1_SECOND_ZERO;
 
-/** The Rayleigh factor 3.8317/π ≈ 1.22. */
+/**
+ * The Rayleigh factor 3.8317/π ≈ 1.22.
+ * @internal Exported to verify the diffraction criterion against the first Bessel zero.
+ */
 export const RAYLEIGH_FACTOR = J1_FIRST_ZERO / Math.PI;
 
 /**
@@ -88,7 +91,7 @@ function airyIntensityInRayleighUnits(r: number): number {
 }
 
 /** Single-slit intensity sinc²(π a sinθ/λ) with r in units of λ/a (first zero at r = 1). */
-export function slitIntensityInSlitUnits(r: number): number {
+function slitIntensityInSlitUnits(r: number): number {
   const x = Math.PI * r;
   if (Math.abs(x) < NEAR_ZERO_SINC) {
     return 1;
@@ -107,6 +110,7 @@ const AIRY_GAUSSIAN_SIGMA_IN_RAYLEIGH = AIRY_GAUSSIAN_SIGMA_OVER_LAMBDA_OVER_D /
  * long-exposure seeing disk: a Gaussian whose width combines in quadrature the
  * seeing FWHM and the Gaussian equivalent of the Airy core (σ ≈ 0.42 λ/D).
  * Normalized to 1 at the centre. See doc/model.md for this approximation.
+ * @internal Exported to test the seeing approximation independently of image sampling.
  */
 export function pointSpreadFunction(r: number, seeingFwhmInRayleigh: number): number {
   if (seeingFwhmInRayleigh <= 0) {
