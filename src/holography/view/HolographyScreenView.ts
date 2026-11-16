@@ -39,7 +39,7 @@ import { ArrowNode, ResetAllButton } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
 import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DiffractionLabButtonOptions.js";
 import { DiffractionLabPanel } from "../../common/DiffractionLabPanel.js";
-import { expectedFocusWidth } from "../../common/model/hologram.js";
+import { expectedFocusWidth, sampleFilmCloseUp, sampleFilmStripReversed } from "../../common/model/hologram.js";
 import { formatSignificant } from "../../common/view/chartUtils.js";
 import {
   createCheckbox,
@@ -378,29 +378,12 @@ export class HolographyScreenView extends ScreenView {
       stroke: DiffractionLabColors.filmBorderColorProperty,
     });
     model.filmProperty.link((film) => {
-      const exposure = film.exposure;
-      let max = 0;
-      for (const value of exposure) {
-        max = Math.max(max, value);
-      }
       // The film strip: top of the view is the largest x, so reverse the samples.
-      for (let i = 0; i < exposure.length; i++) {
-        filmImage.intensities[i] = exposure[exposure.length - 1 - i] ?? 0;
-      }
+      const max = sampleFilmStripReversed(film.exposure, filmImage.intensities);
       filmImage.update([1, 1, 1], max > 0 ? 1 / max : 1);
 
       // The close-up: the central FILM_CLOSE_UP_WIDTH, interpolated linearly between samples.
-      const count = closeUp.intensities.length;
-      let closeMax = 0;
-      for (let i = 0; i < count; i++) {
-        const x = -FILM_CLOSE_UP_WIDTH / 2 + ((i + 0.5) / count) * FILM_CLOSE_UP_WIDTH;
-        const position = (x + FILM_WIDTH / 2) / film.spacing - 0.5;
-        const j = Math.max(0, Math.min(exposure.length - 2, Math.floor(position)));
-        const t = Math.min(1, Math.max(0, position - j));
-        const value = (1 - t) * (exposure[j] ?? 0) + t * (exposure[j + 1] ?? 0);
-        closeUp.intensities[i] = value;
-        closeMax = Math.max(closeMax, value);
-      }
+      const closeMax = sampleFilmCloseUp(film, FILM_WIDTH, FILM_CLOSE_UP_WIDTH, closeUp.intensities);
       closeUp.update([1, 1, 1], closeMax > 0 ? 1 / closeMax : 1);
     });
 

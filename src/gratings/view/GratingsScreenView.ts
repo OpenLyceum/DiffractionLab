@@ -20,12 +20,11 @@ import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
 import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DiffractionLabButtonOptions.js";
 import { DiffractionLabPanel } from "../../common/DiffractionLabPanel.js";
 import {
-  envelopeIntensity,
   fringesInCentralEnvelope,
-  gratingIntensity,
   maxOrder,
   missingOrders,
   orderSinTheta,
+  sampleGratingIntensity,
 } from "../../common/model/fraunhofer.js";
 import { type PhasorChain, phasorChain } from "../../common/model/phasorChain.js";
 import { ChartFrameNode } from "../../common/view/ChartFrameNode.js";
@@ -333,8 +332,8 @@ export class GratingsScreenView extends ScreenView {
     });
 
     // ── Updates ─────────────────────────────────────────────────────────────────
-    const curve: Vector2[] = [];
-    const envelope: Vector2[] = [];
+    const toVectors = (samples: readonly { readonly x: number; readonly y: number }[]): Vector2[] =>
+      samples.map((point) => new Vector2(point.x, point.y));
     Multilink.multilinkAny(
       [
         model.slitCountProperty,
@@ -353,21 +352,21 @@ export class GratingsScreenView extends ScreenView {
         const scale = model.scaleByNSquaredProperty.value ? n * n : 1;
         chart.setRanges(range, new Range(0, GRATINGS_LAYOUT.Y_MAX_FACTOR * scale));
 
-        curve.length = 0;
-        envelope.length = 0;
-        for (let i = 0; i < GRATINGS_CHART_SAMPLES; i++) {
-          const s = range.min + (i / (GRATINGS_CHART_SAMPLES - 1)) * range.getLength();
-          curve.push(new Vector2(s, scale * gratingIntensity(s, n, d, a, lambda)));
-          envelope.push(new Vector2(s, scale * envelopeIntensity(s, a, lambda)));
-        }
-        intensityPlot.setDataSet(curve);
-        envelopePlot.setDataSet(envelope);
-
-        // The strip is drawn as light on a screen: the true intensity, not the N² scale.
-        for (let i = 0; i < GRATINGS_LAYOUT.STRIP_COLUMNS; i++) {
-          const s = range.min + ((i + 0.5) / GRATINGS_LAYOUT.STRIP_COLUMNS) * range.getLength();
-          strip.intensities[i] = gratingIntensity(s, n, d, a, lambda);
-        }
+        // Chart + strip: true intensity on the strip; N² scale only on the chart.
+        const series = sampleGratingIntensity(
+          range.min,
+          range.max,
+          GRATINGS_CHART_SAMPLES,
+          GRATINGS_LAYOUT.STRIP_COLUMNS,
+          n,
+          d,
+          a,
+          lambda,
+          scale,
+          strip.intensities,
+        );
+        intensityPlot.setDataSet(toVectors(series.intensity));
+        envelopePlot.setDataSet(toVectors(series.envelope));
         strip.update(lightRgb(model.wavelengthProperty.value));
 
         // A red tick under each missing order inside the chart.

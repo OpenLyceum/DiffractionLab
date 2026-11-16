@@ -25,7 +25,7 @@ import { ResetAllButton } from "scenerystack/scenery-phet";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
 import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DiffractionLabButtonOptions.js";
 import { DiffractionLabPanel } from "../../common/DiffractionLabPanel.js";
-import { pointSpreadFunction, RAYLEIGH_FACTOR, slitIntensityInSlitUnits } from "../../common/model/airy.js";
+import { sampleTwoSourceCrossSection, sampleTwoSourceImage } from "../../common/model/airy.js";
 import { ChartFrameNode } from "../../common/view/ChartFrameNode.js";
 import { formatSignificant } from "../../common/view/chartUtils.js";
 import {
@@ -317,24 +317,9 @@ export class CircularApertureScreenView extends ScreenView {
         const field = halfFieldProperty.value / rayleigh; // half-width in θ_R units
         const separation = model.separationRatioProperty.value;
         const seeing = model.seeingInRayleighProperty.value;
-        const half = separation / 2;
 
         // Image, brightest point per pixel.
-        const n = AIRY_IMAGE_SAMPLES;
-        const pixel = (2 * field) / n;
-        const halfDiagonal = pixel * Math.SQRT1_2;
-        let peak = 0;
-        for (let row = 0; row < n; row++) {
-          const y = field - (row + 0.5) * pixel;
-          for (let column = 0; column < n; column++) {
-            const x = -field + (column + 0.5) * pixel;
-            const r1 = Math.max(0, Math.hypot(x - half, y) - halfDiagonal);
-            const r2 = Math.max(0, Math.hypot(x + half, y) - halfDiagonal);
-            const value = pointSpreadFunction(r1, seeing) + pointSpreadFunction(r2, seeing);
-            image.intensities[row * n + column] = value;
-            peak = Math.max(peak, value);
-          }
-        }
+        const peak = sampleTwoSourceImage(field, separation, seeing, AIRY_IMAGE_SAMPLES, image.intensities);
         image.update(
           lightRgb(model.wavelengthProperty.value),
           peak > 0 ? 1 / peak : 1,
@@ -342,53 +327,25 @@ export class CircularApertureScreenView extends ScreenView {
         );
 
         // Chart, in arcseconds, with extra samples around each source.
-        const xs: number[] = [];
-        for (let i = 0; i < AIRY_CHART_SAMPLES; i++) {
-          xs.push(-field + (2 * field * i) / (AIRY_CHART_SAMPLES - 1));
-        }
-        for (const centre of [-half, half]) {
-          for (let i = 0; i < APERTURE_LAYOUT.PEAK_SAMPLES; i++) {
-            xs.push(
-              centre -
-                APERTURE_LAYOUT.PEAK_HALF_WIDTH +
-                (2 * APERTURE_LAYOUT.PEAK_HALF_WIDTH * i) / (APERTURE_LAYOUT.PEAK_SAMPLES - 1),
-            );
-          }
-        }
-        xs.sort((a, b) => a - b);
-        const first: Vector2[] = [];
-        const second: Vector2[] = [];
-        const slit: Vector2[] = [];
-        const sum: Vector2[] = [];
-        let top = 1;
-        for (const x of xs) {
-          if (x < -field || x > field) {
-            continue;
-          }
-          const i1 = pointSpreadFunction(Math.abs(x - half), seeing);
-          const i2 = pointSpreadFunction(Math.abs(x + half), seeing);
-          const arcsec = x * rayleigh;
-          first.push(new Vector2(arcsec, i1));
-          second.push(new Vector2(arcsec, i2));
-          sum.push(new Vector2(arcsec, i1 + i2));
-          // A slit of width D has its first zero at λ/D = θ_R / 1.22.
-          slit.push(
-            new Vector2(
-              arcsec,
-              slitIntensityInSlitUnits((x - half) * RAYLEIGH_FACTOR) +
-                slitIntensityInSlitUnits((x + half) * RAYLEIGH_FACTOR),
-            ),
-          );
-          top = Math.max(top, i1 + i2);
-        }
+        const cross = sampleTwoSourceCrossSection(
+          field,
+          separation,
+          seeing,
+          AIRY_CHART_SAMPLES,
+          APERTURE_LAYOUT.PEAK_HALF_WIDTH,
+          APERTURE_LAYOUT.PEAK_SAMPLES,
+          rayleigh,
+        );
+        const toVectors = (samples: readonly { readonly x: number; readonly y: number }[]): Vector2[] =>
+          samples.map((point) => new Vector2(point.x, point.y));
         chart.setRanges(
           new Range(-halfFieldProperty.value, halfFieldProperty.value),
-          new Range(0, APERTURE_LAYOUT.Y_MAX_FACTOR * top),
+          new Range(0, APERTURE_LAYOUT.Y_MAX_FACTOR * cross.top),
         );
-        firstPlot.setDataSet(first);
-        secondPlot.setDataSet(second);
-        slitPlot.setDataSet(slit);
-        sumPlot.setDataSet(sum);
+        firstPlot.setDataSet(toVectors(cross.first));
+        secondPlot.setDataSet(toVectors(cross.second));
+        slitPlot.setDataSet(toVectors(cross.slit));
+        sumPlot.setDataSet(toVectors(cross.sum));
       },
     );
 

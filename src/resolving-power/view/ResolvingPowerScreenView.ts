@@ -26,10 +26,9 @@ import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DiffractionLabButton
 import { DiffractionLabPanel } from "../../common/DiffractionLabPanel.js";
 import {
   angularDispersion,
-  arrayIntensity,
-  firstZeroSinTheta,
-  maxOrder,
   orderSinTheta,
+  resolvingPowerOrderMarks,
+  sampleResolvingPowerProfiles,
 } from "../../common/model/fraunhofer.js";
 import { ChartFrameNode } from "../../common/view/ChartFrameNode.js";
 import { formatGrouped, formatSignificant } from "../../common/view/chartUtils.js";
@@ -360,36 +359,29 @@ export class ResolvingPowerScreenView extends ScreenView {
 
         // Strip: one vertical line per order and wavelength.
         const stripChildren: Node[] = [];
-        for (const lambda of [lambda1, lambda2]) {
-          const top = maxOrder(d, lambda);
-          for (let m = -top; m <= top; m++) {
-            const s = orderSinTheta(m, d, lambda);
-            if (Math.abs(s) >= 1) {
-              continue;
-            }
-            const x = angleToStripX(Math.asin(s));
+        for (const mark of resolvingPowerOrderMarks(d, lambda1, lambda2)) {
+          const x = angleToStripX(Math.asin(mark.sinTheta));
+          stripChildren.push(
+            new Line(
+              x,
+              RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_LINE_INSET,
+              x,
+              RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_HEIGHT - RESOLVING_LAYOUT.STRIP_LINE_INSET,
+              {
+                stroke: mark.order === 0 ? DiffractionLabColors.exposedColorProperty : lightColor(mark.wavelength),
+                lineWidth: RESOLVING_LAYOUT.STRIP_LINE_WIDTH,
+              },
+            ),
+          );
+          if (mark.labelled) {
             stripChildren.push(
-              new Line(
-                x,
-                RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_LINE_INSET,
-                x,
-                RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_HEIGHT - RESOLVING_LAYOUT.STRIP_LINE_INSET,
-                {
-                  stroke: m === 0 ? DiffractionLabColors.exposedColorProperty : lightColor(lambda),
-                  lineWidth: RESOLVING_LAYOUT.STRIP_LINE_WIDTH,
-                },
-              ),
+              new Text(`${mark.order}`.replace("-", "\u2212"), {
+                font: FONTS.SMALL,
+                fill: DiffractionLabColors.textColorProperty,
+                centerX: x,
+                top: RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_HEIGHT + RESOLVING_LAYOUT.ORDER_LABEL_GAP,
+              }),
             );
-            if (lambda === lambda1) {
-              stripChildren.push(
-                new Text(`${m}`.replace("-", "\u2212"), {
-                  font: FONTS.SMALL,
-                  fill: DiffractionLabColors.textColorProperty,
-                  centerX: x,
-                  top: RESOLVING_LAYOUT.STRIP_TOP + RESOLVING_LAYOUT.STRIP_HEIGHT + RESOLVING_LAYOUT.ORDER_LABEL_GAP,
-                }),
-              );
-            }
           }
         }
 
@@ -407,16 +399,18 @@ export class ResolvingPowerScreenView extends ScreenView {
           return;
         }
 
-        const s1 = orderSinTheta(order, d, lambda1);
-        const s2 = orderSinTheta(order, d, lambda2);
-        const theta1 = Math.asin(s1);
-        const theta2 = Math.asin(Math.min(1, s2));
-        const centre = (theta1 + theta2) / 2;
-        const lineWidth = lambda1 / (n * d * Math.cos(theta1));
-        const halfWindow = Math.max(
-          (RESOLVING_LAYOUT.WINDOW_SEPARATIONS * (theta2 - theta1)) / 2,
-          RESOLVING_LAYOUT.WINDOW_LINE_WIDTHS * lineWidth,
+        const profiles = sampleResolvingPowerProfiles(
+          order,
+          n,
+          d,
+          lambda1,
+          lambda2,
+          RESOLVING_CHART_SAMPLES,
+          RESOLVING_LAYOUT.WINDOW_SEPARATIONS,
+          RESOLVING_LAYOUT.WINDOW_LINE_WIDTHS,
+          ARCMIN_PER_RADIAN,
         );
+        const { centreRadians: centre, halfWindowRadians: halfWindow } = profiles;
 
         // Mark the zoomed window on the strip.
         const windowLeft = angleToStripX(centre - halfWindow);
@@ -434,25 +428,15 @@ export class ResolvingPowerScreenView extends ScreenView {
 
         const halfArcmin = halfWindow * ARCMIN_PER_RADIAN;
         chart.setRanges(new Range(-halfArcmin, halfArcmin), new Range(0, RESOLVING_LAYOUT.Y_MAX));
-        const first: Vector2[] = [];
-        const second: Vector2[] = [];
-        const sum: Vector2[] = [];
-        for (let i = 0; i < RESOLVING_CHART_SAMPLES; i++) {
-          const offset = -halfWindow + (2 * halfWindow * i) / (RESOLVING_CHART_SAMPLES - 1);
-          const s = Math.sin(centre + offset);
-          const i1 = arrayIntensity(s, n, d, lambda1);
-          const i2 = arrayIntensity(s, n, d, lambda2);
-          const x = offset * ARCMIN_PER_RADIAN;
-          first.push(new Vector2(x, i1));
-          second.push(new Vector2(x, i2));
-          sum.push(new Vector2(x, i1 + i2));
-        }
-        firstPlot.setDataSet(first);
-        secondPlot.setDataSet(second);
-        sumPlot.setDataSet(sum);
+        const toVectors = (samples: readonly { readonly x: number; readonly y: number }[]): Vector2[] =>
+          samples.map((point) => new Vector2(point.x, point.y));
+        firstPlot.setDataSet(toVectors(profiles.first));
+        secondPlot.setDataSet(toVectors(profiles.second));
+        sumPlot.setDataSet(toVectors(profiles.sum));
 
-        const zero = firstZeroSinTheta(order, n, d, lambda1);
-        const zeroX = transform.modelToViewX((Math.asin(Math.min(1, zero)) - centre) * ARCMIN_PER_RADIAN);
+        const zeroX = transform.modelToViewX(
+          (Math.asin(Math.min(1, profiles.zeroSinTheta)) - centre) * ARCMIN_PER_RADIAN,
+        );
         rayleighLine.x1 = zeroX;
         rayleighLine.x2 = zeroX;
         rayleighLabel.left = zeroX + RESOLVING_LAYOUT.RAYLEIGH_LABEL_GAP;

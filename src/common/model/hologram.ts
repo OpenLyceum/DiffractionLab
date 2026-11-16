@@ -245,3 +245,44 @@ export function expectedFocusWidth(apertureWidth: number, depth: number): number
   const halfAngleSine = apertureWidth / 2 / Math.hypot(apertureWidth / 2, depth);
   return 0.886 / (2 * halfAngleSine);
 }
+
+/**
+ * Copies film exposure into a view strip with x reversed (largest x at the
+ * top of the side-view film). Returns the peak exposure for gain.
+ */
+export function sampleFilmStripReversed(exposure: Float64Array, out: Float32Array): number {
+  let max = 0;
+  for (const value of exposure) {
+    max = Math.max(max, value);
+  }
+  for (let i = 0; i < exposure.length; i++) {
+    out[i] = exposure[exposure.length - 1 - i] ?? 0;
+  }
+  return max;
+}
+
+/**
+ * Linearly interpolates the central `closeUpWidth` of the film into `out`.
+ * `filmWidth` is the full film width used to map sample centres. Returns the
+ * peak value in the close-up for gain.
+ */
+export function sampleFilmCloseUp(
+  film: FilmRecord,
+  filmWidth: number,
+  closeUpWidth: number,
+  out: Float32Array,
+): number {
+  const exposure = film.exposure;
+  const count = out.length;
+  let closeMax = 0;
+  for (let i = 0; i < count; i++) {
+    const x = -closeUpWidth / 2 + ((i + 0.5) / count) * closeUpWidth;
+    const position = (x + filmWidth / 2) / film.spacing - 0.5;
+    const j = Math.max(0, Math.min(exposure.length - 2, Math.floor(position)));
+    const t = Math.min(1, Math.max(0, position - j));
+    const value = (1 - t) * (exposure[j] ?? 0) + t * (exposure[j + 1] ?? 0);
+    out[i] = value;
+    closeMax = Math.max(closeMax, value);
+  }
+  return closeMax;
+}

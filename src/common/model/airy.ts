@@ -148,3 +148,98 @@ export function centralDipFraction(separation: number, seeingFwhmInRayleigh = 0)
   }
   return peak > 0 ? Math.max(0, 1 - centre / peak) : 0;
 }
+
+/** A chart sample: model x and intensity y. Views map these to Vector2 for LinePlot. */
+export type AirySample = {
+  readonly x: number;
+  readonly y: number;
+};
+
+/**
+ * Two-source image on a square grid in Rayleigh units. Each pixel stores the
+ * PSF at the brightest point inside it (half a pixel diagonal closer to each
+ * source). Writes row-major into `out` and returns the peak value.
+ */
+export function sampleTwoSourceImage(
+  halfField: number,
+  separation: number,
+  seeingFwhmInRayleigh: number,
+  samples: number,
+  out: Float32Array,
+): number {
+  const pixel = (2 * halfField) / samples;
+  const halfDiagonal = pixel * Math.SQRT1_2;
+  const half = separation / 2;
+  let peak = 0;
+  for (let row = 0; row < samples; row++) {
+    const y = halfField - (row + 0.5) * pixel;
+    for (let column = 0; column < samples; column++) {
+      const x = -halfField + (column + 0.5) * pixel;
+      const r1 = Math.max(0, Math.hypot(x - half, y) - halfDiagonal);
+      const r2 = Math.max(0, Math.hypot(x + half, y) - halfDiagonal);
+      const value = pointSpreadFunction(r1, seeingFwhmInRayleigh) + pointSpreadFunction(r2, seeingFwhmInRayleigh);
+      out[row * samples + column] = value;
+      peak = Math.max(peak, value);
+    }
+  }
+  return peak;
+}
+
+/**
+ * Cross-section through both sources: uniform samples across ±halfField plus
+ * denser samples around each peak. x is in the same units as halfField times
+ * `xScale` (arcseconds when xScale is the Rayleigh angle in arcsec). Also
+ * returns the equivalent pair through a slit of width D (first zero at λ/D).
+ */
+export function sampleTwoSourceCrossSection(
+  halfField: number,
+  separation: number,
+  seeingFwhmInRayleigh: number,
+  chartSamples: number,
+  peakHalfWidth: number,
+  peakSamples: number,
+  xScale: number,
+): {
+  readonly first: AirySample[];
+  readonly second: AirySample[];
+  readonly sum: AirySample[];
+  readonly slit: AirySample[];
+  readonly top: number;
+} {
+  const half = separation / 2;
+  const xs: number[] = [];
+  for (let i = 0; i < chartSamples; i++) {
+    xs.push(-halfField + (2 * halfField * i) / (chartSamples - 1));
+  }
+  for (const centre of [-half, half]) {
+    for (let i = 0; i < peakSamples; i++) {
+      xs.push(centre - peakHalfWidth + (2 * peakHalfWidth * i) / (peakSamples - 1));
+    }
+  }
+  xs.sort((a, b) => a - b);
+
+  const first: AirySample[] = [];
+  const second: AirySample[] = [];
+  const slit: AirySample[] = [];
+  const sum: AirySample[] = [];
+  let top = 1;
+  for (const x of xs) {
+    if (x < -halfField || x > halfField) {
+      continue;
+    }
+    const i1 = pointSpreadFunction(Math.abs(x - half), seeingFwhmInRayleigh);
+    const i2 = pointSpreadFunction(Math.abs(x + half), seeingFwhmInRayleigh);
+    const scaledX = x * xScale;
+    first.push({ x: scaledX, y: i1 });
+    second.push({ x: scaledX, y: i2 });
+    sum.push({ x: scaledX, y: i1 + i2 });
+    // A slit of width D has its first zero at λ/D = θ_R / 1.22.
+    slit.push({
+      x: scaledX,
+      y:
+        slitIntensityInSlitUnits((x - half) * RAYLEIGH_FACTOR) + slitIntensityInSlitUnits((x + half) * RAYLEIGH_FACTOR),
+    });
+    top = Math.max(top, i1 + i2);
+  }
+  return { first: first, second: second, sum: sum, slit: slit, top: top };
+}
