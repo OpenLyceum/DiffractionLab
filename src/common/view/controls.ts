@@ -14,7 +14,7 @@
  */
 
 import { NumberProperty, type PhetioProperty, type Property, type TReadOnlyProperty } from "scenerystack/axon";
-import { Range } from "scenerystack/dot";
+import { Range, toFixed } from "scenerystack/dot";
 import { combineOptions } from "scenerystack/phet-core";
 import { StringUtils } from "scenerystack/phetcommon";
 import { type Node, RichText, type RichTextOptions, Text } from "scenerystack/scenery";
@@ -124,7 +124,7 @@ export function createNumberControl(
     const text =
       options.decimalPlaces === undefined
         ? formatSignificant(roundToFigures(value, figures), figures)
-        : value.toFixed(options.decimalPlaces);
+        : toFixed(value, options.decimalPlaces);
     if (!unitsProperty) {
       return text;
     }
