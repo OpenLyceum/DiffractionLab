@@ -39,7 +39,12 @@
     "missingOrders": "Ordres manquants : ±{{orders}}",
     "noMissingOrders": "Ordres manquants : aucun",
     "fringesInEnvelope": "Franges brillantes dans l'enveloppe centrale : {{count}}",
-    "equation": "I = I<sub>max</sub> sinc²(β/2) [sin(Nφ/2) / N sin(φ/2)]²"
+    "equation": "I = I<sub>max</sub> sinc²(β/2) [sin(Nφ/2) / N sin(φ/2)]²",
+    "keyboardHelp": {
+      "heading": "Curseur d'angle",
+      "moveCursor": "Déplacer le curseur",
+      "moveCursorSlower": "Déplacer le curseur plus lentement"
+    }
   },
   "resolvingPower": {
     "presets": "Raies spectrales",
@@ -126,6 +131,10 @@
         "cursor": "Curseur d'angle",
         "cursorHelp": "Déplacez à gauche ou à droite pour choisir la direction dont les phaseurs sont affichés.",
         "sweep": "Balayer le curseur"
+      },
+      "keyboardHelp": {
+        "moveCursor": "Déplacez le curseur d'angle vers la gauche ou la droite avec les flèches gauche et droite, ou avec A et D.",
+        "moveCursorSlower": "Maintenez Maj avec les flèches gauche et droite, ou avec A et D, pour déplacer le curseur par petits pas."
       }
     },
     "resolvingPower": {

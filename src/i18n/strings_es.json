@@ -39,7 +39,12 @@
     "missingOrders": "Órdenes ausentes: ±{{orders}}",
     "noMissingOrders": "Órdenes ausentes: ninguno",
     "fringesInEnvelope": "Franjas brillantes en la envolvente central: {{count}}",
-    "equation": "I = I<sub>max</sub> sinc²(β/2) [sen(Nφ/2) / N sen(φ/2)]²"
+    "equation": "I = I<sub>max</sub> sinc²(β/2) [sen(Nφ/2) / N sen(φ/2)]²",
+    "keyboardHelp": {
+      "heading": "Cursor de ángulo",
+      "moveCursor": "Mover el cursor",
+      "moveCursorSlower": "Mover el cursor más despacio"
+    }
   },
   "resolvingPower": {
     "presets": "Líneas espectrales",
@@ -126,6 +131,10 @@
         "cursor": "Cursor de ángulo",
         "cursorHelp": "Mueva a la izquierda o a la derecha para elegir la dirección cuyos fasores se muestran.",
         "sweep": "Barrer el cursor"
+      },
+      "keyboardHelp": {
+        "moveCursor": "Mueve el cursor de ángulo a la izquierda o a la derecha con las flechas izquierda y derecha, o con A y D.",
+        "moveCursorSlower": "Mantén Mayús con las flechas izquierda y derecha, o con A y D, para mover el cursor en pasos más pequeños."
       }
     },
     "resolvingPower": {

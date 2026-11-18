@@ -70,7 +70,8 @@ Standard fleet pattern:
 - Every screen has a live `*ScreenSummaryContent`, a wrapper `Node` with `pdomOrder` (Reset All
   last), and a `*KeyboardHelpContent` wired through the Screen.
 - The Gratings cursor and the Holography objects are focusable and move with the arrow keys
-  (`KeyboardDragListener`); their screens list the draggable-items keyboard-help section.
+  (`KeyboardDragListener`). Holography lists the stock draggable-items keyboard-help section;
+  the Gratings cursor is `leftRight` only, so its screen has a one-dimensional cursor section.
 - Numbers in descriptions go through `toPlainText` (no rich-text markup).
 
 ## Compliance carve-outs

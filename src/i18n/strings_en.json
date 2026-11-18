@@ -39,7 +39,12 @@
     "missingOrders": "Missing orders: ±{{orders}}",
     "noMissingOrders": "Missing orders: none",
     "fringesInEnvelope": "Bright fringes in the central envelope: {{count}}",
-    "equation": "I = I<sub>max</sub> sinc²(β/2) [sin(Nφ/2) / N sin(φ/2)]²"
+    "equation": "I = I<sub>max</sub> sinc²(β/2) [sin(Nφ/2) / N sin(φ/2)]²",
+    "keyboardHelp": {
+      "heading": "Angle Cursor",
+      "moveCursor": "Move cursor",
+      "moveCursorSlower": "Move cursor slower"
+    }
   },
   "resolvingPower": {
     "presets": "Spectral lines",
@@ -126,6 +131,10 @@
         "cursor": "Angle cursor",
         "cursorHelp": "Move left or right to choose the direction whose phasors are shown.",
         "sweep": "Sweep the cursor"
+      },
+      "keyboardHelp": {
+        "moveCursor": "Move the angle cursor left or right with the Left and Right arrow keys, or with A and D.",
+        "moveCursorSlower": "Hold Shift with the Left and Right arrow keys, or with A and D, to move the cursor in smaller steps."
       }
     },
     "resolvingPower": {
