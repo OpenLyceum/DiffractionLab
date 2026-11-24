@@ -5,11 +5,11 @@
  * Simulation. Each preference Property takes its initial value from the
  * corresponding query parameter in diffractionLabQueryParameters.
  *
- * A single instance is shared by every screen (see {@link diffractionLabPreferences}).
+ * main.ts shares one instance with the dialog and screens.
  */
 
 import { BooleanProperty } from "scenerystack/axon";
-import { Tandem } from "scenerystack/tandem";
+import type { Tandem } from "scenerystack/tandem";
 import DiffractionLabNamespace from "../DiffractionLabNamespace.js";
 import diffractionLabQueryParameters from "./diffractionLabQueryParameters.js";
 
@@ -28,8 +28,5 @@ export class DiffractionLabPreferencesModel {
     this.showEquationsProperty.reset();
   }
 }
-
-/** The sim-wide preferences, shared by main.ts (the Preferences dialog) and the screen views. */
-export const diffractionLabPreferences = new DiffractionLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
 DiffractionLabNamespace.register("DiffractionLabPreferencesModel", DiffractionLabPreferencesModel);

@@ -1,4 +1,5 @@
 import { HOLOGRAPHY_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
+import type { DiffractionLabPreferencesModel } from "../../preferences/DiffractionLabPreferencesModel.js";
 /**
  * HolographyScreenView.ts
  *
@@ -69,7 +70,11 @@ import { HolographyScreenSummaryContent } from "./HolographyScreenSummaryContent
 export type HolographyScreenViewOptions = ScreenViewOptions;
 
 export class HolographyScreenView extends ScreenView {
-  public constructor(model: HolographyModel, providedOptions?: HolographyScreenViewOptions) {
+  public constructor(
+    model: HolographyModel,
+    preferences: DiffractionLabPreferencesModel,
+    providedOptions?: HolographyScreenViewOptions,
+  ) {
     const options = optionize<HolographyScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new HolographyScreenSummaryContent(model),
@@ -538,7 +543,11 @@ export class HolographyScreenView extends ScreenView {
       left: HOLOGRAPHY_LAYOUT.NOT_TO_SCALE_LEFT,
       bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
     });
-    const equation = createEquationNode(strings.equationStringProperty, HOLOGRAPHY_LAYOUT.EQUATION_MAX_WIDTH);
+    const equation = createEquationNode(
+      preferences.showEquationsProperty,
+      strings.equationStringProperty,
+      HOLOGRAPHY_LAYOUT.EQUATION_MAX_WIDTH,
+    );
     equation.left = HOLOGRAPHY_LAYOUT.NOT_TO_SCALE_LEFT;
     equation.bottom = notToScale.top - HOLOGRAPHY_LAYOUT.EQUATION_GAP;
 

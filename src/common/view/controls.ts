@@ -29,7 +29,6 @@ import {
 import DiffractionLabColors from "../../DiffractionLabColors.js";
 import { CONTROLS, FONTS } from "../../DiffractionLabConstants.js";
 import { StringManager } from "../../i18n/StringManager.js";
-import { diffractionLabPreferences } from "../../preferences/DiffractionLabPreferencesModel.js";
 import { FLAT_PANEL_PUSH_BUTTON_OPTIONS, LIGHT_SURFACE_TEXT_FILL } from "../DiffractionLabButtonOptions.js";
 import {
   DIFFRACTION_LAB_CHECKBOX_OPTIONS,
@@ -183,6 +182,7 @@ export function createCheckbox(
 
 /** Rich text visible only while the "Show equations" preference is on. */
 export function createEquationNode(
+  showEquationsProperty: TReadOnlyProperty<boolean>,
   equationProperty: TReadOnlyProperty<string>,
   maxWidth: number = CONTROLS.EQUATION_MAX_WIDTH,
 ): Node {
@@ -190,7 +190,7 @@ export function createEquationNode(
     font: FONTS.READOUT,
     fill: DiffractionLabColors.accentColorProperty,
     maxWidth,
-    visibleProperty: diffractionLabPreferences.showEquationsProperty,
+    visibleProperty: showEquationsProperty,
   });
 }
 

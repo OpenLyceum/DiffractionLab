@@ -1,4 +1,5 @@
 import { CIRCULAR_APERTURE_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
+import type { DiffractionLabPreferencesModel } from "../../preferences/DiffractionLabPreferencesModel.js";
 /**
  * CircularApertureScreenView.ts
  *
@@ -57,7 +58,11 @@ import { formatDiameter } from "./formatDiameter.js";
 export type CircularApertureScreenViewOptions = ScreenViewOptions;
 
 export class CircularApertureScreenView extends ScreenView {
-  public constructor(model: CircularApertureModel, providedOptions?: CircularApertureScreenViewOptions) {
+  public constructor(
+    model: CircularApertureModel,
+    preferences: DiffractionLabPreferencesModel,
+    providedOptions?: CircularApertureScreenViewOptions,
+  ) {
     const options = optionize<CircularApertureScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new CircularApertureScreenSummaryContent(model),
@@ -236,7 +241,11 @@ export class CircularApertureScreenView extends ScreenView {
         createReadout(ratioReadoutProperty),
         createReadout(dipReadoutProperty),
         verdictText,
-        createEquationNode(strings.equationStringProperty, APERTURE_LAYOUT.EQUATION_MAX_WIDTH),
+        createEquationNode(
+          preferences.showEquationsProperty,
+          strings.equationStringProperty,
+          APERTURE_LAYOUT.EQUATION_MAX_WIDTH,
+        ),
       ],
       left: APERTURE_LAYOUT.IMAGE_LEFT + APERTURE_LAYOUT.IMAGE_SIZE + APERTURE_LAYOUT.READOUTS_GAP,
       top: APERTURE_LAYOUT.IMAGE_TOP + APERTURE_LAYOUT.READOUTS_TOP_INSET,

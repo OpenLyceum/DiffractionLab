@@ -1,4 +1,5 @@
 import { RESOLVING_POWER_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
+import type { DiffractionLabPreferencesModel } from "../../preferences/DiffractionLabPreferencesModel.js";
 /**
  * ResolvingPowerScreenView.ts
  *
@@ -61,7 +62,11 @@ import { ResolvingPowerScreenSummaryContent } from "./ResolvingPowerScreenSummar
 export type ResolvingPowerScreenViewOptions = ScreenViewOptions;
 
 export class ResolvingPowerScreenView extends ScreenView {
-  public constructor(model: ResolvingPowerModel, providedOptions?: ResolvingPowerScreenViewOptions) {
+  public constructor(
+    model: ResolvingPowerModel,
+    preferences: DiffractionLabPreferencesModel,
+    providedOptions?: ResolvingPowerScreenViewOptions,
+  ) {
     const options = optionize<ResolvingPowerScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new ResolvingPowerScreenSummaryContent(model),
@@ -234,7 +239,11 @@ export class ResolvingPowerScreenView extends ScreenView {
           children: [
             createReadout(angleReadoutProperty),
             createReadout(dispersionReadoutProperty),
-            createEquationNode(strings.equationStringProperty, RESOLVING_LAYOUT.EQUATION_MAX_WIDTH),
+            createEquationNode(
+              preferences.showEquationsProperty,
+              strings.equationStringProperty,
+              RESOLVING_LAYOUT.EQUATION_MAX_WIDTH,
+            ),
           ],
         }),
       ],

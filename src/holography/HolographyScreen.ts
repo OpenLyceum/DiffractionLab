@@ -8,18 +8,20 @@
  * Registered in the screens array in src/main.ts. Its home-screen and navigation-bar
  * icons come from createHolographyIcon() in src/common/DiffractionLabScreenIcons.ts.
  */
+
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
 import { createHolographyIcon } from "../common/DiffractionLabScreenIcons.js";
 import DiffractionLabColors from "../DiffractionLabColors.js";
+import type { DiffractionLabPreferencesModel } from "../preferences/DiffractionLabPreferencesModel.js";
 import { HolographyModel } from "./model/HolographyModel.js";
 import { HolographyKeyboardHelpContent } from "./view/HolographyKeyboardHelpContent.js";
 import { HolographyScreenView } from "./view/HolographyScreenView.js";
 
 // Require tandem to be explicit — accidental omission would break PhET-iO.
-type HolographyScreenOptions = ScreenOptions & { tandem: Tandem };
+type HolographyScreenOptions = ScreenOptions & { tandem: Tandem; preferences: DiffractionLabPreferencesModel };
 
 export class HolographyScreen extends Screen<HolographyModel, HolographyScreenView> {
   public constructor(options: HolographyScreenOptions) {
@@ -28,7 +30,7 @@ export class HolographyScreen extends Screen<HolographyModel, HolographyScreenVi
       () => new HolographyModel(),
       // View factory — receives the model instance
       (model) =>
-        new HolographyScreenView(model, {
+        new HolographyScreenView(model, options.preferences, {
           tandem: options.tandem.createTandem("view"),
         }),
       optionize<HolographyScreenOptions, EmptySelfOptions, ScreenOptions>()(

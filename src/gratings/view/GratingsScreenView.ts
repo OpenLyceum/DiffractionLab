@@ -1,4 +1,5 @@
 import { GRATINGS_SCREEN_VIEW_SETTINGS } from "../../DiffractionLabConstants.js";
+import type { DiffractionLabPreferencesModel } from "../../preferences/DiffractionLabPreferencesModel.js";
 /**
  * GratingsScreenView.ts
  *
@@ -52,7 +53,11 @@ import { PhasorDiagramNode } from "./PhasorDiagramNode.js";
 export type GratingsScreenViewOptions = ScreenViewOptions;
 
 export class GratingsScreenView extends ScreenView {
-  public constructor(model: GratingsModel, providedOptions?: GratingsScreenViewOptions) {
+  public constructor(
+    model: GratingsModel,
+    preferences: DiffractionLabPreferencesModel,
+    providedOptions?: GratingsScreenViewOptions,
+  ) {
     const options = optionize<GratingsScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
       {
         screenSummaryContent: new GratingsScreenSummaryContent(model),
@@ -325,7 +330,11 @@ export class GratingsScreenView extends ScreenView {
       { left: SCREEN_VIEW_MARGIN, bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN },
     );
 
-    const equation = createEquationNode(strings.equationStringProperty, GRATINGS_LAYOUT.EQUATION_MAX_WIDTH);
+    const equation = createEquationNode(
+      preferences.showEquationsProperty,
+      strings.equationStringProperty,
+      GRATINGS_LAYOUT.EQUATION_MAX_WIDTH,
+    );
     equation.boundsProperty.link(() => {
       equation.left = rightColumn.left;
       equation.top = rightColumn.bottom + GRATINGS_LAYOUT.EQUATION_GAP;

@@ -26,30 +26,35 @@ import DiffractionLabColors from "./DiffractionLabColors.js";
 import { GratingsScreen } from "./gratings/GratingsScreen.js";
 import { HolographyScreen } from "./holography/HolographyScreen.js";
 import { StringManager } from "./i18n/StringManager.js";
-import { diffractionLabPreferences } from "./preferences/DiffractionLabPreferencesModel.js";
+import { DiffractionLabPreferencesModel } from "./preferences/DiffractionLabPreferencesModel.js";
 import { DiffractionLabPreferencesNode } from "./preferences/DiffractionLabPreferencesNode.js";
 import { ResolvingPowerScreen } from "./resolving-power/ResolvingPowerScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
+  const simPreferences = new DiffractionLabPreferencesModel(Tandem.ROOT.createTandem("preferences"));
   const screens = [
     new GratingsScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().gratingsStringProperty,
       tandem: Tandem.ROOT.createTandem("gratingsScreen"),
       backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
     }),
     new ResolvingPowerScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().resolvingPowerStringProperty,
       tandem: Tandem.ROOT.createTandem("resolvingPowerScreen"),
       backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
     }),
     new CircularApertureScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().circularApertureStringProperty,
       tandem: Tandem.ROOT.createTandem("circularApertureScreen"),
       backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
     }),
     new HolographyScreen({
+      preferences: simPreferences,
       name: stringManager.getScreenNames().holographyStringProperty,
       tandem: Tandem.ROOT.createTandem("holographyScreen"),
       backgroundColorProperty: DiffractionLabColors.backgroundColorProperty,
@@ -67,7 +72,7 @@ onReadyToLaunch(() => {
       simulationOptions: {
         customPreferences: [
           {
-            createContent: (tandem: Tandem) => new DiffractionLabPreferencesNode(diffractionLabPreferences, tandem),
+            createContent: (tandem: Tandem) => new DiffractionLabPreferencesNode(simPreferences, tandem),
           },
         ],
       },

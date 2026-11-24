@@ -58,7 +58,7 @@ Physics and its mapping to the book: [`doc/model.md`](doc/model.md). Architectur
 | `src/common/view/controls.ts` | Number controls (log option, integer rounding), checkboxes, text buttons, radio rows, readouts, equation node |
 | `src/gratings/view/PhasorDiagramNode.ts` | The phasor diagram |
 | `src/holography/model/HolographyModel.ts` | Setup → film (derived) → incremental reconstruction |
-| `src/preferences/DiffractionLabPreferencesModel.ts` | `diffractionLabPreferences` singleton: Show equations (`?showEquations`, default on) |
+| `src/preferences/DiffractionLabPreferencesModel.ts` | Show equations (`?showEquations`, default on) |
 
 ## Accessibility
 
