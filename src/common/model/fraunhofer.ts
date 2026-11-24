@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { FRAUNHOFER_NUMERICS } from "../../DiffractionLabConstants.js";
 /**
  * fraunhofer.ts
@@ -102,7 +103,9 @@ export function maxOrder(d: number, wavelength: number): number {
 export function maxUsableOrder(d: number, wavelength: number): number {
   const ratio = d / wavelength;
   const top = maxOrder(d, wavelength);
-  return Math.abs(ratio - Math.round(ratio)) < FRAUNHOFER_NUMERICS.ORDER_EPSILON * Math.max(1, ratio) ? top - 1 : top;
+  return Math.abs(ratio - roundSymmetric(ratio)) < FRAUNHOFER_NUMERICS.ORDER_EPSILON * Math.max(1, ratio)
+    ? top - 1
+    : top;
 }
 
 /** sin θ of the order-m principal maximum: mλ/d. */
@@ -119,7 +122,7 @@ export function missingOrders(d: number, a: number, mMax: number): number[] {
   const result: number[] = [];
   for (let m = 1; m <= mMax; m++) {
     const envelopeOrder = (m * a) / d;
-    const nearest = Math.round(envelopeOrder);
+    const nearest = roundSymmetric(envelopeOrder);
     if (nearest >= 1 && Math.abs(envelopeOrder - nearest) < FRAUNHOFER_NUMERICS.MISSING_ORDER_EPSILON) {
       result.push(m);
     }

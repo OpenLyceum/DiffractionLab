@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { RESOLVING_POWER_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * ResolvingPowerScreenSummaryContent.ts
@@ -47,7 +48,7 @@ export class ResolvingPowerScreenSummaryContent extends ScreenSummaryContent {
           order: model.orderProperty.value,
           lines: model.illuminatedLinesProperty.value,
           power: model.resolvingPowerProperty.value,
-          needed: Math.round(model.requiredPowerProperty.value),
+          needed: roundSymmetric(model.requiredPowerProperty.value),
           verdict:
             verdict === "resolved"
               ? strings.resolvedStringProperty.value

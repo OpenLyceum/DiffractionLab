@@ -20,7 +20,7 @@ import type { DiffractionLabPreferencesModel } from "../../preferences/Diffracti
  */
 
 import { DerivedProperty, Multilink, Property, StringProperty } from "scenerystack/axon";
-import { Bounds2, Matrix3, Transform3, Vector2 } from "scenerystack/dot";
+import { Bounds2, Matrix3, roundSymmetric, Transform3, Vector2 } from "scenerystack/dot";
 import { Shape } from "scenerystack/kite";
 import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { StringUtils } from "scenerystack/phetcommon";
@@ -142,7 +142,7 @@ export class HolographyScreenView extends ScreenView {
     const progressText = createReadout(
       DerivedProperty.deriveAny([model.reconstructionProgressProperty, strings.computingStringProperty], () =>
         StringUtils.fillIn(strings.computingStringProperty.value, {
-          value: Math.round(100 * model.reconstructionProgressProperty.value),
+          value: roundSymmetric(100 * model.reconstructionProgressProperty.value),
         }),
       ),
       { font: FONTS.SMALL },
@@ -376,7 +376,7 @@ export class HolographyScreenView extends ScreenView {
     const closeUp = new IntensityImageNode({
       width: HOLOGRAPHY_LAYOUT.CLOSE_UP_WIDTH,
       height: HOLOGRAPHY_LAYOUT.CLOSE_UP_HEIGHT,
-      columns: Math.round(FILM_CLOSE_UP_WIDTH * HOLOGRAPHY_LAYOUT.CLOSE_UP_SAMPLES_PER_WAVELENGTH),
+      columns: roundSymmetric(FILM_CLOSE_UP_WIDTH * HOLOGRAPHY_LAYOUT.CLOSE_UP_SAMPLES_PER_WAVELENGTH),
       rows: 1,
     });
     const closeUpFrame = new Rectangle(0, 0, HOLOGRAPHY_LAYOUT.CLOSE_UP_WIDTH, HOLOGRAPHY_LAYOUT.CLOSE_UP_HEIGHT, {

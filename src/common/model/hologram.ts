@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { HOLOGRAM_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * hologram.ts
@@ -82,7 +83,7 @@ export function coherenceFactor(pathDifference: number, coherenceLength: number)
 
 /** Positions of the film samples, at sample centres across the full width. */
 function filmPositions(setup: HologramSetup): Float64Array {
-  const count = Math.max(2, Math.round(setup.filmWidth * setup.samplesPerWavelength));
+  const count = Math.max(2, roundSymmetric(setup.filmWidth * setup.samplesPerWavelength));
   const spacing = setup.filmWidth / count;
   const positions = new Float64Array(count);
   for (let j = 0; j < count; j++) {
@@ -208,7 +209,7 @@ export function focusWidth(
   window: number = HOLOGRAM_SETTINGS.DEFAULT_WINDOW,
   step: number = HOLOGRAM_SETTINGS.DEFAULT_STEP,
 ): number {
-  const count = Math.round((2 * window) / step) + 1;
+  const count = roundSymmetric((2 * window) / step) + 1;
   const values = new Float64Array(count);
   let peakIndex = 0;
   for (let i = 0; i < count; i++) {

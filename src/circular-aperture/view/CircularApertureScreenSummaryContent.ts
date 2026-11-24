@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { CIRCULAR_APERTURE_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * CircularApertureScreenSummaryContent.ts
@@ -38,7 +39,7 @@ export class CircularApertureScreenSummaryContent extends ScreenSummaryContent {
         const verdict = model.verdictProperty.value;
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
           diameter: formatDiameter(model.diameterProperty.value),
-          wavelength: Math.round(model.wavelengthProperty.value),
+          wavelength: roundSymmetric(model.wavelengthProperty.value),
           rayleigh: toPlainText(
             formatSignificant(
               model.rayleighAngleProperty.value,
