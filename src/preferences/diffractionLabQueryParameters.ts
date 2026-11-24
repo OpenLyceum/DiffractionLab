@@ -15,8 +15,9 @@ const diffractionLabQueryParameters = QueryStringMachine.getAll({
    * physics text. Hide them with ?showEquations=false.
    */
   showEquations: {
-    type: "boolean",
+    type: "custom",
     defaultValue: true,
+    parse: (value: string | null): boolean => value !== "false",
     public: true,
   },
 });
