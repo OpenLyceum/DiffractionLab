@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * GratingsScreenSummaryContent.ts
@@ -51,7 +52,7 @@ export class GratingsScreenSummaryContent extends ScreenSummaryContent {
           count: n,
           spacing: formatSignificant(d, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.SPACING_DIGITS),
           width: formatSignificant(a, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.WIDTH_DIGITS),
-          wavelength: Math.round(model.wavelengthProperty.value),
+          wavelength: roundSymmetric(model.wavelengthProperty.value),
           missing: `${missingOrdersText(d, a, lambda)}.`,
           sinTheta: toPlainText(
             formatSignificant(s, GRATINGS_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS),

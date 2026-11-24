@@ -24,7 +24,7 @@ import {
   type TReadOnlyProperty,
   type UnknownMultilink,
 } from "scenerystack/axon";
-import { Vector2Property } from "scenerystack/dot";
+import { roundSymmetric, Vector2Property } from "scenerystack/dot";
 import type { TModel } from "scenerystack/joist";
 import {
   type FilmRecord,
@@ -123,8 +123,8 @@ export class HolographyModel implements TModel {
     );
     this.filmProperty = new DerivedProperty([this.setupProperty], (setup) => recordHologram(setup));
 
-    this.gridColumns = Math.round(RECONSTRUCTION_X_RANGE.getLength() / RECONSTRUCTION_CELL);
-    this.gridRows = Math.round(RECONSTRUCTION_DEPTH_RANGE.getLength() / RECONSTRUCTION_CELL);
+    this.gridColumns = roundSymmetric(RECONSTRUCTION_X_RANGE.getLength() / RECONSTRUCTION_CELL);
+    this.gridRows = roundSymmetric(RECONSTRUCTION_DEPTH_RANGE.getLength() / RECONSTRUCTION_CELL);
     this.reconstruction = new Float32Array(this.gridColumns * this.gridRows);
 
     this.setupMultilink = Multilink.multilinkAny(

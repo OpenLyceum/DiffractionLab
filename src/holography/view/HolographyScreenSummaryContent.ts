@@ -1,3 +1,4 @@
+import { roundSymmetric } from "scenerystack/dot";
 import { HOLOGRAPHY_SCREEN_SUMMARY_CONTENT_SETTINGS } from "../../DiffractionLabConstants.js";
 /**
  * HolographyScreenSummaryContent.ts
@@ -36,7 +37,7 @@ export class HolographyScreenSummaryContent extends ScreenSummaryContent {
         return StringUtils.fillIn(a11y.currentDetailsPatternStringProperty.value, {
           mode: reconstructing ? strings.reconstructStringProperty.value : strings.recordStringProperty.value,
           count: model.objectCountProperty.value,
-          angle: Math.round(model.referenceAngleProperty.value),
+          angle: roundSymmetric(model.referenceAngleProperty.value),
           coherence: formatSignificant(
             model.coherenceLengthProperty.value,
             HOLOGRAPHY_SCREEN_SUMMARY_CONTENT_SETTINGS.CURRENT_DETAILS_PROPERTY_DIGITS,

@@ -5,6 +5,7 @@
  * nanometre) and the same colour as a CSS string for strokes and fills.
  */
 
+import { roundSymmetric } from "scenerystack/dot";
 import { Color } from "scenerystack/scenery";
 import { encodeSrgb, wavelengthToLinearRgb } from "./spectralColor.js";
 
@@ -12,7 +13,7 @@ const cache = new Map<number, readonly [number, number, number]>();
 
 /** Linear sRGB of a wavelength, scaled so its brightest channel is 1. */
 export function lightRgb(wavelengthNm: number): readonly [number, number, number] {
-  const key = Math.round(wavelengthNm);
+  const key = roundSymmetric(wavelengthNm);
   const cached = cache.get(key);
   if (cached) {
     return cached;
